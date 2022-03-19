@@ -1,0 +1,27 @@
+/*TODO : CSS 적용을위한 기본 div 태그의 틀 적용 */
+div {
+    padding: 10px 40px;
+}
+.mainContainer>div{
+    border: 1px black solid;
+}
+.SoloHeader{
+    display: flex;
+    justify-content: space-between;
+}
+.SoloHeader>div{
+    border: 1px black solid;
+}
+.container>div>div{
+    border: 1px black solid;
+}
+
+.container .content2{
+    display: flex;
+    justify-content: space-between;
+}
+
+.container .content3{
+    display: flex;
+    justify-content: space-between;
+}
