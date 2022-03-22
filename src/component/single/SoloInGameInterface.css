@@ -20,8 +20,20 @@ div {
     display: flex;
     justify-content: space-between;
 }
+.container .content2>div>div{
+    border: 1px black solid;
+}
 
 .container .content3{
     display: flex;
     justify-content: space-between;
+
+}
+.container .content3>div:first-child{
+    height: 300px;
+    /*todo 스크롤 최하단으로 위치. 상단 문제글씨랑 구역 분리.*/
+    overflow: auto;
+}
+.container .content3>div:last-child{
+    height: 40px
 }
