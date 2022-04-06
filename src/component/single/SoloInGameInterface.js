@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import './SoloInGameInterface.css'
+import { Link } from 'react-router-dom'
 
 export default function SoloInGameInterface(props) {
     const [anser, setAnser] = useState('')
@@ -27,12 +28,15 @@ export default function SoloInGameInterface(props) {
         setAnserData((anserData) => [...anserData, anser])
         setAnser('')
     }
+    function onClickGoHome(){
+        window.location.href='/'
+    }
 
     const anserList = anserData.map((data) => (data ? <div>{data}</div> : <div>""</div>))
     return (
         <div className={'mainContainer'}>
             <div className={'SoloHeader'}>
-                <div>솔로</div>
+                 <div onClick={onClickGoHome}>솔로</div>
                 <div>{userName}</div>
                 <div>
                     {toDate} - {fromDate}
