@@ -10,7 +10,9 @@ export default function Main() {
             </div>
             <div style={{ display: 'flex' }}>
                 <div>
-                    <Link to={'SoloInGameInterface'}>솔로</Link>
+                    <Link to={'SoloGameCreate'}>솔로</Link>
+                  {/*<br/>*/}
+                    {/*<Link to={'SoloGameCreate'}>솔로방만들기(임시)</Link>*/}
                 </div>
                 <div>
                     <Link to={'#'}>멀티</Link>
