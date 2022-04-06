@@ -1,11 +1,15 @@
 import React from 'react'
 import './SoloInGameCreate.css'
+import { Link } from 'react-router-dom'
 
 const SoloGameCreate = () => {
+    function onClickGoHome(){
+        window.location.href='/'
+    }
     return (
         <div className={'mainContainer'}>
             <div className={'SoloHeader'}>
-                <div>솔로</div>
+                <div onClick={onClickGoHome}>솔로</div>
                 <div>사용자이름</div>
                 <div>년도 - 년도</div>
             </div>
@@ -14,8 +18,8 @@ const SoloGameCreate = () => {
                     <div>
                         <div>노래년도 설정</div>
                         <div>
-                            <input type={'text'} placeholder={'초기년도'} /> -{' '}
-                            <input type={'text'} placeholder={'후기년도'} />
+                            <input type={'text'} placeholder={'초기년도'} size={4}/> -{' '}
+                            <input type={'text'} placeholder={'후기년도'} size={4}/>
                         </div>
                     </div>
                     <div>
@@ -39,7 +43,11 @@ const SoloGameCreate = () => {
                     </div>
                 </div>
                 <div>
-                    <input type={'button'} value={'게임시작'} />
+                    <Link
+                        to="/SoloInGameInterface"
+                        props={'hi'}>
+                        <input type={'button'} value={'게임시작'} />
+                    </Link>
                 </div>
             </div>
         </div>
