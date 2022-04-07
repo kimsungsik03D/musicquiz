@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import './SoloInGameInterface.css'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom';
 
 export default function SoloInGameInterface(props) {
+    const data1 = useLocation()
+    useEffect(() =>{
+        console.log(data1);
+    },[])
     const [anser, setAnser] = useState('')
-    const [userName, setuserName] = useState('홍길동')
-    const [toDate, setToDate] = useState('2020')
-    const [fromDate, setFromDate] = useState('2021')
+    // const [userName, setuserName] = useState('홍길동')
+    // const [toDate, setToDate] = useState('2020')
+    // const [fromDate, setFromDate] = useState('2021')
     const [time, setTime] = useState(60)
     //todo key값 지정
     const [anserData, setAnserData] = useState([])
@@ -24,6 +28,7 @@ export default function SoloInGameInterface(props) {
     }, [time])
     //https://gaemi606.tistory.com/entry/React-%ED%83%80%EC%9D%B4%EB%A8%B8-%EB%A7%8C%EB%93%A4%EA%B8%B0-Hooks-setInterval
 
+    //정답 리스트업로드.
     function onClickAnswer() {
         setAnserData((anserData) => [...anserData, anser])
         setAnser('')
@@ -37,9 +42,9 @@ export default function SoloInGameInterface(props) {
         <div className={'mainContainer'}>
             <div className={'SoloHeader'}>
                  <div onClick={onClickGoHome}>솔로</div>
-                <div>{userName}</div>
+                <div>{data1.state.name}</div>
                 <div>
-                    {toDate} - {fromDate}
+                    {data1.state.toDate} - {data1.state.fromDate}
                 </div>
             </div>
             <div className={'container'}>
