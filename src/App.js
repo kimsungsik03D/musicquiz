@@ -1,9 +1,9 @@
 import './App.css';
-import SoloInGameInterface from './component/single/SoloInGameInterface';
-import Main from './component/main/Main';
+import SoloInGameInterface from './pages/single/SoloInGameInterface';
+import Main from './pages/main/Main';
 import { BrowserRouter as Router, Routes,Route } from 'react-router-dom';
-import SoketTest from './component/single/SoketTest';
-import SoloGameCreate from './component/single/SoloGameCreate';
+import SoketTest from './pages/single/SoketTest';
+import SoloGameCreate from './pages/single/SoloGameCreate';
 
 function App() {
   return (
