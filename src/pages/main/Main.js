@@ -1,17 +1,23 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 export default function Main() {
+    const [userName, setUserName] = useState('')
+    function onChangeUserName(e) {
+        setUserName(e.target.value)
+    }
     return (
         <div>
             <div>메인페이지입니다.</div>
             <div>
-                <input type={'text'} />{' '}
+                <input type={'text'} name={'username'} onChange={onChangeUserName} />{' '}
             </div>
             <div style={{ display: 'flex' }}>
                 <div>
-                    <Link to={'SoloGameCreate'}>솔로</Link>
-                  {/*<br/>*/}
+                    <Link to={'SoloGameCreate'} state={{name : userName?userName:''}}>
+                        솔로
+                    </Link>
+                    {/*<br/>*/}
                     {/*<Link to={'SoloGameCreate'}>솔로방만들기(임시)</Link>*/}
                 </div>
                 <div>

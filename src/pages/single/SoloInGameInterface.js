@@ -3,9 +3,10 @@ import './SoloInGameInterface.css'
 import { Link, useLocation } from 'react-router-dom';
 
 export default function SoloInGameInterface(props) {
-    const data1 = useLocation()
+    const location = useLocation()
+    const state = location.state
     useEffect(() =>{
-        console.log(data1);
+        console.log(state);
     },[])
     const [anser, setAnser] = useState('')
     // const [userName, setuserName] = useState('홍길동')
@@ -42,9 +43,9 @@ export default function SoloInGameInterface(props) {
         <div className={'mainContainer'}>
             <div className={'SoloHeader'}>
                  <div onClick={onClickGoHome}>솔로</div>
-                <div>{data1.state.name}</div>
+                <div>{state.name}</div>
                 <div>
-                    {data1.state.toDate} - {data1.state.fromDate}
+                    {state.toDate} - {state.fromDate}
                 </div>
             </div>
             <div className={'container'}>
