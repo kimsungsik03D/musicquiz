@@ -8,7 +8,7 @@ export default function SoketTest(children) {
     useEffect(() => {
         console.log('123525!!')
         // ws = new WebSocket(`ws://3.35.55.132:8080/`)
-        ws = new WebSocket(`ws://3.35.55.132:8081/websocket`)
+        ws = new WebSocket(`ws://3.35.55.132:9080/websocket`)
         // ws = new WebSocket(`ws://localhost/`)
         ws.onopen = (e) => {
             console.log('e', e)
@@ -20,7 +20,7 @@ export default function SoketTest(children) {
     })
 
     const sendMessage = () => {
-        ws.send('gello this is client Message')
+        ws.send('hello')
         console.log('good send')
     }
     return (
