@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+
+<head>
+<meta name="viewport" content='width=device-width'/>
+<style type='text/css'>
+@-ms-viewport { width: device-width;}
+@-o-viewport { width: device-width;}
+@viewport { width: device-width;}
+</style>
+
+</head>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<link rel="stylesheet" href="/css/solomode.css">
+
+<script type="text/javascript">
+
+
+
+	//후에 사용자가 지정하도록함
+	var rows = 10;
+	var columns = 6;
+
+	$(document).ready(function(){
+		// 웹 소켓 초기화
+   		webSocketInit();
+		
+		
+		$("#tetrisBody").empty();
+		var htmlstr = "";
+		for(var i=0; i<rows; i++) {
+			htmlstr += "<tr><td>|</td>"
+			for(var j=0; j<columns; j++) {
+				htmlstr += "<td id=\"td" + (i*columns+j)+ "\">&nbsp; </td>"
+			}
+			
+			htmlstr += "<td>|</td></tr>"
+		}
+		$("#tetrisBody").html(htmlstr)
+		
+		$("#nextBody").empty()
+		
+		var htmlstr = "";
+		for(var i=0; i<4; i++) {
+			htmlstr += "<tr>"
+			for(var j=0; j<5; j++) {
+				htmlstr += "<td id=\"next" + (i*columns+j)+ "\"> </td>"
+			}
+			
+			htmlstr += "</tr>"
+		}
+		$("#nextBody").html(htmlstr)
+		
+		
+		//window.addEventListener("keydown", (e) => console.log(e));
+		
+		
+		
+		
+	});
+//웹소켓 생성
+var webSocket;
+
+function webSocketInit()
+{
+    webSocket = new WebSocket("ws://localhost:8081/websocket");
+    //webSocket = new WebSocket("ws://3.35.55.132:8081/websocket");
+	webSocket.onopen = function(event) { socketOpen(event);};
+	webSocket.onclose = function(event) { socketClose(event);};
+	webSocket.onmessage = function(event) { socketMessage(event);};
+	webSocket.onerror = function(event) { socketError(event);};
+}  
+  //웹소켓 연결
+  function socketOpen(event){
+     console.log("연결 완료");
+  }
+  
+  //웹소켓 닫힘
+  function socketClose(event){
+  	 console.log("웹소켓이 닫혔습니다.");
+  	 
+     // 웹소켓이 닫혀있으면 재연결을 시도합니다.
+     // webSocket이 close되면 오브젝트의 속성, 메서드가 사라지기 때문에,
+     // 해당 함수를 호출하여 초기화하여 줍니다.
+     webSocketInit(); 
+  }
+  
+  //메시지를 송신할 때 사용
+  function socketMsgSend(str){
+  
+  	if(str =='start') {
+  		$("#score").empty()
+  		$("#nextLabel").empty()
+  		
+  		
+  		}
+     // 메시지 포맷
+     var msg = {
+     	type : "message",
+        value : str
+ 
+     }
+     
+     // 세션리스트에 메시지를 송신한다.
+     webSocket.send(str)
+  }
+  
+  //웹소켓 메시지 수신
+  function socketMessage(event){
+		
+  	  var receiveData = event.data; // 수신 data
+  	  
+  	  var obj2 = JSON.parse(receiveData);
+  	  if(obj2.status =="gaming") {
+      	updateGaming(obj2)
+      	if(obj2.mesg == "left") {
+      		$("#anoUserchat").append("상대방이 왼쪽이동\r\n");
+      		$("#anoUserchat").scrollTop($("#anoUserchat").prop('scrollHeight'));
+      		}
+      	else if(obj2.mesg == "right") {
+      		$("#anoUserchat").append("상대방이 오른쪽이동\r\n");
+      		$("#anoUserchat").scrollTop($("#anoUserchat").prop('scrollHeight'));
+      		}
+      	else if(obj2.mesg == "convert") {
+      		$("#anoUserchat").append("상대방이 회전함\r\n");
+      		$("#anoUserchat").scrollTop($("#anoUserchat").prop('scrollHeight'));
+      		}
+	  }
+	  else if(obj2.status =="userStatus") {
+	  updateUserInfo(obj2)
+	  }
+
+  }
+  
+  //user 상태 정보 전달 메시지 받을때
+  function updateUserInfo(obj2) {
+  		$("#numOfUser").text("접속자수: "+obj2.numOfUser)
+		$("label[for='userId']").text("유저 아이디: "+ obj2.userId)
+  		$("label[for='anoUserId']").text("상대방 아이디: "+ obj2.anoUserId)
+  		$("label[for='roomId']").text("방번호: "+ obj2.roomId)
+  		$("label[for='mesg']").text("메시지: "+ obj2.mesg)
+  		
+  }
+  
+  
+  //게임 진행중 상태 받을때
+  function updateGaming(obj2) {
+  		// 게임판
+      $("#tetrisBody").empty();
+      	var htmlstr = "";
+		for(var i=0; i<rows; i++) {
+			htmlstr += "<tr><td>|</td>"
+			for(var j=0; j<columns; j++) {
+				if(obj2[(i*columns+j).toString()])
+					htmlstr += "<td id=\"td" + (i*columns+j)+ "\">*</td>"
+				else 
+					htmlstr += "<td id=\"td" + (i*columns+j)+ "\"> &nbsp; </td>"
+			}
+			
+			htmlstr += "<td>|</td></tr>"
+						
+		}
+		
+			htmlstr += "<tr><td>&nbsp;</td>"
+			
+			for(var i=1; i<columns+1; i++) {
+				htmlstr += "<td>=</td>"
+			}
+			htmlstr += "<td>&nbsp;</td></tr>"
+		
+		//떨어지는 블럭 위치 표시
+		$("#tetrisBody").html(htmlstr)
+		for(var i=0; i<4; i++) {
+			var ds = "td" + obj2.block[(i).toString()]
+			
+			$('#' +ds).html("*");
+		
+		}
+		
+		//다음 블럭 정보 
+		$("#nextBody").empty();
+		htmlstr = "";
+		for(var i=0; i<4; i++) {
+			htmlstr += "<tr>"
+			for(var j=0; j<5; j++) {
+				htmlstr += "<td id=\"next" + (i*columns+j)+ "\"> </td>"
+			}
+			
+			htmlstr += "</tr>"
+		}
+		$("#nextBody").html(htmlstr)
+		
+		for(var i=0; i<4; i++) {
+			var nex = "next" + obj2.nextBlock[(i).toString()]	
+			$('#' +nex).html("*");	
+		}		
+		
+
+		//스코어 표시
+		
+		$("#score").text("스코어: "+obj2.score)
+		$("#numOfUser").text("접속자수: "+obj2.numOfUser)
+		$("#nextLabel").text("다음블럭")
+  
+  
+  
+  }
+  
+  
+  //웹소켓 에러
+  function socketError(event){
+  	alert("에러가 발생하였습니다.");
+  }
+  
+  //웹소켓 종료
+  function disconnect(){
+  	webSocket.close();
+  }
+
+	function startGame() {
+					$.ajax({
+		  type: "GET"
+		, async: false
+		, url : "/start"
+		, success : function(){
+			console.log("success")
+		}
+		, error: function (request, status, error){
+			console.log("error log [status] ", status);
+			console.log("error log [error] ", error);
+			
+		}
+	});
+	}
+	
+	function startGameCallBack() {
+		
+	}
+
+
+
+	function leftMove() {
+			$.ajax({
+		  type: "GET"
+		, async: false
+		, url : "/leftMove"
+		, dataType : "json"
+		, success : function(){
+			console.log("success")
+		}
+		, error: function (request, status, error){
+			console.log("error log [status] ", status);
+			console.log("error log [error] ", error);
+			
+		}
+	});
+	}
+	
+	function leftMoveCallBack() {
+		
+	}
+	
+	function rightMove() {
+			$.ajax({
+		  type: "GET"
+		, async: false
+		, url : "/rightMove"
+		, dataType : "json"
+		, success : function(){
+			console.log("success")
+		}
+		, error: function (request, status, error){
+			console.log("error log [status] ", status);
+			console.log("error log [error] ", error);
+			
+		}
+	});
+	}
+	
+	function rightMoveCallBack() {
+		
+	}
+
+</script>
+
+
+<html>
+<head>
+
+	<title>협력블록쌓기</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<h1>협력모드 테스트중</h1><h2 id=numOfUser></h2><label for="roomId"></label><br/>
+	<label for="userId"></label><br/>
+	<label for="anoUserId"></label><br/>
+	<label for="mesg">메시지:</label><br/>
+	<button onclick="socketMsgSend('start')">게임시작</button>
+	<button onclick="socketMsgSend('left')">왼쪽이동</button>
+	<button onclick="socketMsgSend('right')">오른쪽이동</button>
+	<button onclick="socketMsgSend('convert')">블록회전</button>
+	<div><h2 id="score" >스코어:</h2></div>
+	<h2 id="nextLabel"><h2>
+	<h2 id="anoUserLabel">상대방메시지<h2>
+	<textarea id="anoUserchat" name="anoUserchat" rows="5"></textarea>
+          
+<h3>
+<table>
+	<tbody id="tetrisBody"></tbody>
+</table>
+</h3>
+<table id="nextTable" >
+	<tbody id="nextBody"></tbody>
+</table>
+</body>
+</html>
