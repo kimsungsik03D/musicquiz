@@ -17,12 +17,12 @@ export default function SoloInGameInterface(props) {
     const state = location.state
     const [anser, setAnser] = useState('')
     const [anserData, setAnserData] = useState([])
+    const [score, setScore] = useState('')
     const [qustioncoimt, setQustioncoimt] = useState(state.QuestionCount)
     // const [userName, setuserName] = useState('홍길동')
     // const [toDate, setToDate] = useState('2020')
     // const [fromDate, setFromDate] = useState('2021')
-    const [time, setTime] = useState(60)
-    //todo key값 지정
+    const [time, setTime] = useState(30)
 
     useEffect(() => {
         console.log('state', state)
