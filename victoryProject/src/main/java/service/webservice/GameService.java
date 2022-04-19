@@ -1,13 +1,13 @@
 package service.webservice;
 
-import java.util.HashMap;
+import org.json.simple.JSONObject;
 
 import service.web.Gaming;
 
 public interface GameService {
 
-	 boolean gameStart(Gaming redisGame);
-	 boolean gameCtrl(Gaming redisGame);
+	 Gaming gameStart(String sessionId,JSONObject gameSet);
+	 boolean gameCtrl(String answer, Gaming redisGame);
 	
 	
 	//hihi

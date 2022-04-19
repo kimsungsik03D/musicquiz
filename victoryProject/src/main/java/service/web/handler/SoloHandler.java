@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.springframework.scheduling.annotation.Scheduled;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -14,7 +16,6 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import service.domain.jpa.Room;
 import service.web.Gaming;
 import service.webservice.GameService;
 import service.webservice.UserService;
@@ -23,14 +24,11 @@ import service.webservice.UserService;
 public class SoloHandler extends TextWebSocketHandler  {
 
 	private static List<WebSocketSession> sessionList = new ArrayList<>();
-	
-	
+	private static HashMap<String,Gaming> gameMap = new HashMap<String,Gaming>();
 	
     /**
      * 서버에 접속한 웹소캣별 게이밍 진행상태 저장
      */
-
-	
     public static UserService userService ;
     public static GameService gameService;
     
@@ -38,10 +36,22 @@ public class SoloHandler extends TextWebSocketHandler  {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         String payload = message.getPayload();
-        
-
+       
+        JSONObject obj = jsonToObjectParser(payload);
+        System.out.println(obj);
         if (session != null) {
   
+        	//회원정보 수정일시
+        	if(obj.get("userName") != null) {
+        		gameMap.put(session.getId(), gameService.gameStart(session.getId(), obj));
+
+        	}
+        		
+        	else {
+        		//게임 플레이 구현
+        		System.out.println("게임 컨트롤 구현");
+        	}
+        	
         }
      }
 
@@ -49,6 +59,8 @@ public class SoloHandler extends TextWebSocketHandler  {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
 
+    	//접속시 로그 등록
+    	userService.addConnLog(session);
 
  
     }
@@ -64,7 +76,7 @@ public class SoloHandler extends TextWebSocketHandler  {
      * 웹소켓 연결된 모든 클라이언트에 1초마다 
 		gaming 진행상태 및 블록 렌딩 정보 전달
      */
-	@Scheduled(cron = "0/1 * * * * ?")
+	
 	private void gameCheck() throws JsonProcessingException{
 		
 				
@@ -121,5 +133,17 @@ public class SoloHandler extends TextWebSocketHandler  {
 					e.printStackTrace();
 				}
 		}
+	}
+	
+	//jsoon 파싱 함수
+	private static JSONObject jsonToObjectParser(String jsonStr) {
+		JSONParser parser = new JSONParser();
+		JSONObject obj = null;
+		try {
+			obj = (JSONObject) parser.parse(jsonStr);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return obj;
 	}
 }

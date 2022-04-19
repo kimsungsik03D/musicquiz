@@ -21,16 +21,18 @@ public class UserServiceImpl implements UserService {
 	public ConnLogRepository connRepo;
 	
 
-
-	
-	public void addUser(WebSocketSession session) {
-        userRepo.save(User.builder()
-        		.session(session.toString())
-        		.userid(session.getId())
-        		.build());
-	}
 	
 	public void addConnLog(WebSocketSession session) {
+		
+		String ip = (String) session.getAttributes().get("ip") ;
+		connRepo.save(ConnLog.builder()
+				.session(session.toString())
+				.ipAddress(ip)
+				.build());
+	}
+	
+
+	public void addDisLog(WebSocketSession session) {
 		
 		String ip = (String) session.getAttributes().get("ip") ;
 		connRepo.save(ConnLog.builder()
@@ -40,6 +42,5 @@ public class UserServiceImpl implements UserService {
 		
 		
 	}
-	
 	
 }
