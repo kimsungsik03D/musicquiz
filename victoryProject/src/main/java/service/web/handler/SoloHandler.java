@@ -46,10 +46,12 @@ public class SoloHandler extends TextWebSocketHandler  {
         	if(obj.get("userName") != null) {
         		gameMap.put(session.getId(), gameService.gameStart(session.getId(), obj));
         		
+        		Gaming redisGame = gameMap.get(session.getId());
+        		
         		result.put("gaming", true);
         		result.put("songHint", "");
         		result.put("singerHint", "");
-        		result.put("songUrl", "");
+        		result.put("songUrl", redisGame.getUri());
         		
 
         	}
