@@ -1,19 +1,15 @@
 package service.webservice;
 
-import java.util.HashMap;
+import org.json.simple.JSONObject;
 
-import service.domain.redis.RedisGaming;
+import service.web.Gaming;
 
 public interface GameService {
 
-	 boolean gameStart(RedisGaming redisGame);
-	 boolean gaming(RedisGaming redisGame);
-	 void leftMove(RedisGaming redisGame);
-	 void rightMove(RedisGaming redisGame);
-	 void convertBlock(RedisGaming redisGame);
-	 HashMap getBlockLoc(RedisGaming redisGame);
-	 HashMap getNextBlock(RedisGaming redisGame);
-	 void endGame(RedisGaming redisGame);
+	 Gaming gameStart(String sessionId,JSONObject gameSet);
+	 boolean gameCtrl(String answer, Gaming redisGame);
+	 boolean timeHintCheck(Gaming redisGame);
+	 boolean answerCheck(String answer, Gaming redisGame);
 	
-	
+	//hihi
 }
