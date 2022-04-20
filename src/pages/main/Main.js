@@ -10,11 +10,11 @@ export default function Main() {
         <div>
             <div>메인페이지입니다.</div>
             <div>
-                <input type={'text'} name={'username'} onChange={onChangeUserName} />{' '}
+                <input type={'text'} name={'userName'} onChange={onChangeUserName} />{' '}
             </div>
             <div style={{ display: 'flex' }}>
                 <div>
-                    <Link to={'SoloGameCreate'} state={{name : userName?userName:''}}>
+                    <Link to={'SoloGameCreate'} state={{userName : userName?userName:''}}>
                         솔로
                     </Link>
                     {/*<br/>*/}
