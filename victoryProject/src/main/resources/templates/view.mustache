@@ -74,22 +74,39 @@ function webSocketInit()
 
   }
   
+  //게임 메시지 전송
+   function socketAnserSend(str){
+  		
+  		
+  		
+     // 메시지 포맷
+     var msg = {
+     	"answer" : $("#song").val() 
+     }
+     
+     var jsonData = JSON.stringify(msg);
+     
+     // 세션리스트에 메시지를 송신한다.
+     webSocket.send(jsonData);
+
+  } 
+  
   //웹소켓 메시지 수신
   function socketMessage(event){
+		
+	  var receiveData = event.data; // 수신 data
+  	  
+  	  var obj2 = JSON.parse(receiveData);
+  	  
+  	  console.log(obj2);
+		
 		
 
   }
   
 
   
-  
-  //게임 진행중 상태 받을때
-  function updateGaming(obj2) {
-
-  
-  
-  }
-  
+ 
   
   //웹소켓 에러
   function socketError(event){
@@ -139,13 +156,10 @@ function webSocketInit()
 	<label for="anoUserId"></label><br/>
 	<label for="mesg">메시지:</label><br/>
 	<button onclick="socketMsgSend('start')">게임시작</button>
-	<button onclick="socketMsgSend('left')">왼쪽이동</button>
-	<button onclick="socketMsgSend('right')">오른쪽이동</button>
-	<button onclick="socketMsgSend('convert')">블록회전</button>
-	<div><h2 id="score" >스코어:</h2></div>
-	<h2 id="nextLabel"><h2>
-	<h2 id="anoUserLabel">상대방메시지<h2>
-	<textarea id="anoUserchat" name="anoUserchat" rows="5"></textarea>
+	<button onclick="socketAnserSend('left')">왼쪽이동</button>
+	<input type="text" id="song" name="song" >
+        
+
           
 <h3>
 <table>

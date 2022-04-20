@@ -38,21 +38,73 @@ public class SoloHandler extends TextWebSocketHandler  {
         String payload = message.getPayload();
        
         JSONObject obj = jsonToObjectParser(payload);
-        System.out.println(obj);
+        HashMap result = new HashMap();
+        //System.out.println(obj);
         if (session != null) {
   
-        	//회원정보 수정일시
+        	//회원정보 추가일시
         	if(obj.get("userName") != null) {
         		gameMap.put(session.getId(), gameService.gameStart(session.getId(), obj));
+        		
+        		result.put("gaming", true);
+        		result.put("songHint", "");
+        		result.put("singerHint", "");
+        		result.put("songUrl", "");
+        		
 
         	}
         		
         	else {
-        		//게임 플레이 구현
-        		System.out.println("게임 컨트롤 구현");
+        		Gaming redisGame = gameMap.get(session.getId());
+        		boolean endCheck = gameService.gameCtrl((String) obj.get("answer"), redisGame);
+        		
+        		//end면 게임 끝
+        		if(!endCheck) {
+        			System.out.println("엔드임");
+        			
+        			result.put("gaming", false);
+        			result.put("score", redisGame.getScore());
+        			result.put("runningTime", redisGame.getClearTime());
+        			sendMessage(session, makeJson(result));
+        		}
+        		
+        		//게임 진행중일시
+        		else {
+        			
+        			result.put("gaming", true);
+        			result.put("time", redisGame.getRemainTime());
+        			
+        			//정답이 맞았나 체크
+        			if(gameService.answerCheck((String) obj.get("answer"), redisGame)) {
+        				result.put("answerCheck", true);
+        				result.put("songUrl", redisGame.getUri());
+        				result.put("score", redisGame.getScore());
+        			}
+        			else {
+        				//정답이 틀렸을경우 힌드틑 함께 제공해줘야하나 체크
+        				result.put("answerCheck", false);
+        				result.put("songUrl", redisGame.getUri());
+        				result.put("score", redisGame.getScore());
+        				
+            			if(gameService.timeHintCheck(redisGame)) {	
+                    		result.put("songHint", redisGame.getSongHint());
+                    		result.put("singerHint", redisGame.getSingerHint());
+            			}
+            			else {
+                    		result.put("songHint", "");
+                    		result.put("singerHint", "");
+            				
+            			}
+        				
+        			}
+        			
+        		}
+
         	}
         	
         }
+        sendMessage(session, makeJson(result));
+        
      }
 
     /* Client가 접속 시 호출되는 메서드 */
