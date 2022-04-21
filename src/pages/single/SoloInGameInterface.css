@@ -34,5 +34,24 @@ div {
     overflow: auto;
 }
 .container .content3 > div:last-child {
-    height: 40px;
+    display: flex;
+    flex-direction : column;
+    justify-content : space-around;
+    border: 0;
+    /*display: inline;*/
+    /*height: 40px;*/
+}
+.container .content3 > div:last-child > div  {
+    text-align: center;
+    border: 1px pink solid;
+}
+.container .content3 > div:last-child > .success:before  {
+    content: '정답입니다.';
+    font-weight: bold;
+    color: green;
+}
+.container .content3 > div:last-child > .fail:before  {
+    content: '오답입니다.';
+    font-weight: bold;
+    color: red;
 }
