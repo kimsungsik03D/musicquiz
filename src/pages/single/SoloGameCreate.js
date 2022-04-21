@@ -6,17 +6,17 @@ const SoloGameCreate = () => {
     const location = useLocation()
     const state = location.state
     const [input, setInput] = useState({
-        userName: state ? state.name : '',
-        toYear: 0,
-        fromYear: 0,
-        questionCount: 3,
-        modtype: true,
-        songHint: true,
-        singerHint: true,
+        // userName:  state?state.name:'' ,
+        userName:  state.userName,
+        toYear: '',
+        fromYear: '',
+        questionCount: '',
+        modtype: '',
+        songHint: '',
+        singerHint: '',
     })
-
     //화면에서 사용하기 위한 변수를 선언해 비구조화할당을 통해 해당 변수에 Input 값을 추출한다.
-    const { userName, toDate, fromDate, questionCount, singerHint, songHint } = input
+    const { userName,toYear, fromYear, questionCount, singerHint, songHint } = input
 
     function onChange(e) {
         const { value, name } = e.target
@@ -25,7 +25,6 @@ const SoloGameCreate = () => {
             [name]: value,
         })
     }
-    console.log(input)
 
     function onClickGoHome() {
         window.location.href = '/'
@@ -36,7 +35,7 @@ const SoloGameCreate = () => {
         <div className={'mainContainer'}>
             <div className={'SoloHeader'}>
                 <div onClick={onClickGoHome}>솔로</div>
-                <div>{userName}</div>
+                <div>{state.userName}</div>
                 <div>년도 - 년도</div>
             </div>
             <div className={'container'}>
@@ -44,9 +43,8 @@ const SoloGameCreate = () => {
                     <div>
                         <div>노래년도 설정</div>
                         <div>
-                            <input name={'toDate'} type={'text'} placeholder={'초기년도'} size={4} onChange={onChange} value={toDate} />{' '}-{' '}
-                            <input name={'fromDate'} type={'text'} placeholder={'후기년도'} size={4} onChange={onChange} value={fromDate}
-                            />
+                            <input name={'toYear'} type={'text'} placeholder={'초기년도'} size={4} onChange={onChange}  />{' '}-{' '}
+                            <input name={'fromYear'} type={'text'} placeholder={'후기년도'} size={4} onChange={onChange} />
                         </div>
                     </div>
                     <div>
@@ -76,6 +74,7 @@ const SoloGameCreate = () => {
                 </div>
                 <div>
                     <Link to="/SoloInGameInterface" state={input}>
+                        {/*TODO onClick 이벤트를 통해 서버로 같이 넘겨주기.*/}
                         <input type={'button'} value={'게임시작'} />
                     </Link>
                 </div>
