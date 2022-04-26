@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react'
 import './SoloInGameInterface.css'
 import { useLocation } from 'react-router-dom'
 import ReactAudioPlayer from 'react-audio-player'
-import { sampledata,sampleserverdata } from './noadd/gameData'
-import music1 from '../../assats/music/LOVELOVELOVE편집1.m4a'
+// import { sampledata,sampleserverdata } from './noadd/gameData'
+// import music1 from '../../assats/music/LOVELOVELOVE편집1.m4a'
 // import music1 from 'https://docs.google.com/uc?export=open&id=19x2wK4FSk8WS86XD0TWTKx38hgWuO1dx'
 //TODO : LOGIC  -> create페이지에서 서버에 데이터를 보내면서 화면을 이동하고 inerface화면에서 서버가 던진 데이터를 받아서 초기값 세팅
 //TODO 정답란에 문자입력시 서버에 데이터 전송 후 해당값 받기. 이때 state가 false라면 게임 종료 하면서 스코어 , 런닝타임 출력
@@ -11,24 +11,59 @@ import music1 from '../../assats/music/LOVELOVELOVE편집1.m4a'
 
 
 export default function SoloInGameInterface(props) {
-    //TODO axios패키지 설치하여 아래 폼으로 데이터 전송받아 사용하는거 추가 구현
     const state = useLocation().state
-    let gameData = {}
+    const [gameData,setGameData]=useState({})
     const [answer, setAnswer] = useState('')
     const [answerData, setAnswerData] = useState([])
-    const [qustioncoimt, setQustioncoimt] = useState(state.QuestionCount)
-
-    gameData={...sampleserverdata}
+    const [qustioncoimt, setQustioncoimt] = useState(state.questionCount)
     const [time, setTime] = useState(gameData.time)
-    if(gameData.setTimeout==0){
-        console.log('시간초과로 인한 다음 정보 가져오기.');
-    }
-    /*TODO 메시지 받았을때*/
-    // ws.onmessage=function(e){
-    ////     gameData={...JSON.parse(e.data)}
-    //     nextdata({...JSON.parse(e.data)})
-    // }
 
+    props.props.onopen = (e) => {
+            console.log('connected!!')
+        }
+    props.props.onmessage = (e) => {
+        // setGameData(JSON.parse(e.data))
+        console.log('!!!!!!!!',JSON.parse(e.data));
+        setGameData({gaming: true,
+            singerHint: "",
+            songHint: "",
+            songUrl: 'https://docs.google.com/uc?export=open&id=1xM0Lh3wy0akEcm4WaSztiVscw5_lwOlh'})
+            // songUrl: 'https://docs.google.com/uc?export=open&id=1fN2mEqy2HDeDnRcyRGpEC44W8gdNMl0O'})
+
+            console.log('onmessage!!')
+        }
+    props.props.onclose = (e) => {
+            console.log('onclose',e);
+        }
+
+    // 소켓에서 받아오는 모든 메시지는 useEffec를 통해 관리한다.
+    //20220426 서버에서 받아오는 URL에 ' 이 포함되어있어서 정상적인 노래 재생만 안되고있음 다만 songURL을 강제적으로 변경해주면 노래 나옴.
+    useEffect(()=>{
+        props.props.onmessage = (e) => {
+            setGameData(JSON.parse(e.data))
+            /*setGameData({gaming: true,
+                singerHint: "",
+                songHint: "",
+                // songUrl: 'https://docs.google.com/uc?export=open&id=1xM0Lh3wy0akEcm4WaSztiVscw5_lwOlh'
+                })
+                 songUrl: 'https://docs.google.com/uc?export=open&id=1fN2mEqy2HDeDnRcyRGpEC44W8gdNMl0O'
+                 })
+
+            setGameData({
+                answerCheck: false,
+                gaming: true,
+                score: 0,
+                singerHint: "er",
+                songHint: "wqer",
+                // songUrl: 'https://docs.google.com/uc?export=open&id=1xM0Lh3wy0akEcm4WaSztiVscw5_lwOlh'})
+                songUrl: "'https://docs.google.com/uc?export=open&id=13dA4Y5DIi70HFaSgECRhMC7yKFFASAIB'",
+                time: 18
+            })*/
+
+            setTime(JSON.parse(e.data).time)
+            console.log('서버 메시지 : ',JSON.parse(e.data));
+        }
+    },[props.props.onmessage])
 
 
 
@@ -36,11 +71,15 @@ export default function SoloInGameInterface(props) {
     useEffect(() => {
         const countdown = setInterval(() => {
             if (parseInt(time) > 0) {
+                if (parseInt(time)  == 15) {
+                    props.props.send(JSON.stringify({'answer':''}))
+                }
+
                 setTime(parseInt(time) - 1)
             }
             if (parseInt(time) == 0) {
-                setTime(gameData.time)
                 //TODO 시간이 0이면 서버에서 다시 한번 더 정보를 가져와야함
+                props.props.send(JSON.stringify({'answer':''}))
             }
         }, 1000)
         return () => clearInterval(countdown)
@@ -58,36 +97,27 @@ export default function SoloInGameInterface(props) {
     )
     /*정답 클릭시 호출함수*/
     function onClickAnswer() {
-        setAnswerData((answerData) => [...answerData, answer])
+        //TODO 스크롤 제어 필요함.
+
         console.log("입력한 정답은 : ",answer,'입니다.');
         // TODO 서버에 데이터 전송하기.
-        // ws.send(JSON.stringify({ answer:answer }))
-        setAnswer('')
-    }
-    //정답을 보내고 이후 로직.
-    function nextdata(responseData){
 
-        if(responseData.gaming==false){
-            console.log("Game over 선언");
-            console.log("모달창 통해서 score랑 runningtime 출력");
-        }
-        else{
-            if(responseData.answerCheck==true){
-                console.log('정답이므로 게임 정보 세팅');
-                console.log("정답입니다 라는 메시지 출력");
-                setQustioncoimt(qustioncoimt-1)
-                gameData={...responseData}
-            }else{
-                console.log('오답이므로 게임정보 유지')
-                console.log("오답입니다 라는 메시지 출력");
-            }
-        }
+      /*  var msg = {
+            "userName" : "message",
+            "toYear" : 2000,
+            "fromYear" : 2020,
+            "questionCount" :2 ,
+            "modtype" :true,
+            "songHint" : true,
+            "singerHint" : true,
+            "rankMod" : true
+
+        }*/
+        props.props.send(JSON.stringify({'answer':answer}))
+        setAnswerData((answerData) => [...answerData, answer])
+        setAnswer('')
+
     }
-    /* 화면로딩시 1회만 소켓 통신 */
-    useEffect((e) => {
-        console.log('state', state)
-        //TODO 소켓통신을 활요해서 화면이 마운트되면 1회 데이터 정보 받아오기.
-    },[])
 
     return (
         <div className={'mainContainer'}>
@@ -105,6 +135,7 @@ export default function SoloInGameInterface(props) {
                     {/*https://www.npmjs.com/package/react-audio-player*/}
                     <div>
                         <ReactAudioPlayer src={gameData.songUrl} autoPlay controls loop/>
+                        {/*<ReactAudioPlayer src={'https://docs.google.com/uc?export=open&id=1pyEtoyEPMXp1pdsVW76FzQaxRCEGO2az'} autoPlay controls loop/>*/}
                     </div>
                 </div>
                 <div className={'content2'}>
