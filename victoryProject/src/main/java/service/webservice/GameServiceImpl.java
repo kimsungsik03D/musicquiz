@@ -136,7 +136,7 @@ public class GameServiceImpl implements GameService {
 		Song song = songRepo.getSongInfo(redisGame.getSongList().get(0), songNum).get();
 		redisGame.getSongList().remove(0);
 		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("'https://docs.google.com/uc?export=open&id=").append(song.getUrlId());
+		stringBuilder.append("'https://docs.google.com/uc?export=open&id=").append(song.getUrlId()).append("'");
 		
 		//url 받아올때 힌트랑 정답 함께 저장함
 		redisGame.setAnswerName(song.getTitle());
