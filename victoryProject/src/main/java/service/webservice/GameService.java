@@ -1,6 +1,7 @@
 package service.webservice;
 
 import org.json.simple.JSONObject;
+import org.springframework.web.socket.WebSocketSession;
 
 import service.web.Gaming;
 
@@ -10,6 +11,7 @@ public interface GameService {
 	 boolean gameCtrl(String answer, Gaming redisGame);
 	 boolean timeHintCheck(Gaming redisGame);
 	 boolean answerCheck(String answer, Gaming redisGame);
+	 void rankSave(Gaming redisGame, WebSocketSession session);
 	
 	//hihi
 }

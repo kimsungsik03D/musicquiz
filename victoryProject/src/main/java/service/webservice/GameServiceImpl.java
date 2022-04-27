@@ -10,7 +10,10 @@ import java.util.Random;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.socket.WebSocketSession;
 
+import service.domain.jpa.Ranking;
+import service.domain.jpa.RankingRepository;
 import service.domain.jpa.Song;
 import service.domain.jpa.SongRepository;
 import service.web.Gaming;
@@ -21,6 +24,9 @@ public class GameServiceImpl implements GameService {
 	@Autowired
 	public SongRepository songRepo ;
 	
+	@Autowired
+	public RankingRepository rankRepo;
+	
 	Random random = new Random();
 	
 	private final int roundTime = 30;
@@ -28,6 +34,8 @@ public class GameServiceImpl implements GameService {
 	//!dto 추가 작업 해야함
 	public Gaming gameStart(String sessionId, JSONObject gameSet) {
 
+		
+		System.out.println(rankRepo.findRankList().get(0).getScore());
 		
 		//게임 초기 설정해야하는 목록
 		int toYear = Integer.parseInt(String.valueOf(gameSet.get("toYear")));
@@ -40,6 +48,7 @@ public class GameServiceImpl implements GameService {
 		.singerHintCheck((boolean) gameSet.get("singerHint"))
 		.songHintCheck((boolean) gameSet.get("songHint"))
 		.rankMod((boolean) gameSet.get("rankMod"))
+		.username((String) gameSet.get("userName"))
 		.toYear(toYear)
 		.fromYear(fromYear)
 		.build();
@@ -78,12 +87,12 @@ public class GameServiceImpl implements GameService {
 		
 		//정답이 맞았을때
 		if(answerCheck(answer, redisGame)) {
-			System.out.println("정답 맞음");
+			//System.out.println("정답 맞음");
 			//round 클리어 타임 저장
 			saveClearTime(redisGame);
 			redisGame.setScore(redisGame.getScore()+1);
 			redisGame.setQuestionCount(redisGame.getQuestionCount()-1);
-			System.out.println("남은 문제수:"+ redisGame.getQuestionCount());
+			//System.out.println("남은 문제수:"+ redisGame.getQuestionCount());
 			
 			//게임 엔드인지 혹은 다음라운드 진행해야하는지 체크
 			if(gameEndCheck(redisGame)) {
@@ -100,18 +109,15 @@ public class GameServiceImpl implements GameService {
 		}
 		//정답 틀리고 힌트를 줘야하는 시간일시
 		else {
-			System.out.println("정답 틀림");
-			System.out.println(redisGame.getAnswerName());
+			//System.out.println("정답 틀림");
+			//System.out.println(redisGame.getAnswerName());
 			//설계 변경으로 게임 진행 절반이상 지났을시 힌트 제공은 핸들러에서 obj에 추가하는것으로 변경함
 			
 			
 		}
 			
-			
-		
-		
+
 		} //# 시간 오버인지 체크 if문
-		
 		
 		
 		return true;
@@ -136,7 +142,7 @@ public class GameServiceImpl implements GameService {
 		Song song = songRepo.getSongInfo(redisGame.getSongList().get(0), songNum).get();
 		redisGame.getSongList().remove(0);
 		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("'https://docs.google.com/uc?export=open&id=").append(song.getUrlId()).append("'");
+		stringBuilder.append("https://docs.google.com/uc?export=open&id=").append(song.getUrlId());
 		
 		//url 받아올때 힌트랑 정답 함께 저장함
 		redisGame.setAnswerName(song.getTitle());
@@ -197,7 +203,8 @@ public class GameServiceImpl implements GameService {
 	// 정답 맞았나 체크 맞으면 true, 틀리면 false
 	public boolean answerCheck(String answer, Gaming redisGame) {
 		
-		if(answer.equals(redisGame.getAnswerName()))
+	
+		if(answer.replace(" ", "").toLowerCase().equals(redisGame.getAnswerName().replace(" ", "").toLowerCase()))
 			return true;
 		else 
 			return false;
@@ -219,9 +226,20 @@ public class GameServiceImpl implements GameService {
 		int saveSecondTime = Long.valueOf(duration.getSeconds()).intValue() * 1000 ;
 		
 		redisGame.setClearTime(redisGame.getClearTime() + saveTime + saveSecondTime);
-		System.out.println("savedTime"+redisGame.getClearTime());
+		//System.out.println("savedTime"+redisGame.getClearTime());
 		
 	}
 	
-	//노래 리스트의 정답 호출
+	public void rankSave(Gaming redisGame, WebSocketSession session) {
+		
+		rankRepo.save(
+				Ranking.builder()
+				.session(session.toString())
+				.username(redisGame.getUsername())
+				.score(redisGame.getScore())
+				.cleartime(redisGame.getClearTime())
+				.build()
+				);
+		
+	}
 }

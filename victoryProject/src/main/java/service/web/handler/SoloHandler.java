@@ -35,7 +35,9 @@ public class SoloHandler extends TextWebSocketHandler  {
 	/*client가 서버에게 메시지 보냄*/
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        String payload = message.getPayload();
+       
+    	
+    	String payload = message.getPayload();
        
         JSONObject obj = jsonToObjectParser(payload);
         HashMap result = new HashMap();
@@ -52,17 +54,23 @@ public class SoloHandler extends TextWebSocketHandler  {
         		result.put("songHint", "");
         		result.put("singerHint", "");
         		result.put("songUrl", redisGame.getUri());
-        		
+        		result.put("time", 30);
 
         	}
         		
         	else {
         		Gaming redisGame = gameMap.get(session.getId());
+        		boolean answerCheck = gameService.answerCheck((String) obj.get("answer"), redisGame);
         		boolean endCheck = gameService.gameCtrl((String) obj.get("answer"), redisGame);
         		
         		//end면 게임 끝
         		if(!endCheck) {
-        			System.out.println("엔드임");
+        			//System.out.println("엔드임");
+        			
+        			if(redisGame.isRankMod()) {
+        				gameService.rankSave(redisGame, session);
+        			}
+        			
         			
         			result.put("gaming", false);
         			result.put("score", redisGame.getScore());
@@ -77,29 +85,28 @@ public class SoloHandler extends TextWebSocketHandler  {
         			result.put("time", redisGame.getRemainTime());
         			
         			//정답이 맞았나 체크
-        			if(gameService.answerCheck((String) obj.get("answer"), redisGame)) {
+        			if(answerCheck) {
         				result.put("answerCheck", true);
         				result.put("songUrl", redisGame.getUri());
         				result.put("score", redisGame.getScore());
+        				sendMessage(session, makeJson(result));
         			}
-        			else {
-        				//정답이 틀렸을경우 힌드틑 함께 제공해줘야하나 체크
-        				result.put("answerCheck", false);
-        				result.put("songUrl", redisGame.getUri());
-        				result.put("score", redisGame.getScore());
+      
+        			//정답이 틀렸을경우 힌드틑 함께 제공해줘야하나 체크
+        			result.put("answerCheck", false);
+        			result.put("songUrl", redisGame.getUri());
+        			result.put("score", redisGame.getScore());
         				
-            			if(gameService.timeHintCheck(redisGame)) {	
-                    		result.put("songHint", redisGame.getSongHint());
-                    		result.put("singerHint", redisGame.getSingerHint());
-            			}
-            			else {
-                    		result.put("songHint", "");
-                    		result.put("singerHint", "");
+            		if(gameService.timeHintCheck(redisGame)) {	
+                    	result.put("songHint", redisGame.getSongHint());
+                    	result.put("singerHint", redisGame.getSingerHint());
+            		}
+            		else {
+                    	result.put("songHint", "");
+                    	result.put("singerHint", "");
             				
-            			}
+            		}
         				
-        			}
-        			
         		}
 
         	}

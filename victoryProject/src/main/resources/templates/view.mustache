@@ -27,8 +27,8 @@ var webSocket;
 
 function webSocketInit()
 {
-    //webSocket = new WebSocket("ws://localhost:8088/websocket");
-    webSocket = new WebSocket("ws://13.125.191.54:8088/websocket");
+    webSocket = new WebSocket("ws://localhost:8088/websocket");
+    //webSocket = new WebSocket("ws://13.125.191.54:8088/websocket");
 	webSocket.onopen = function(event) { socketOpen(event);};
 	webSocket.onclose = function(event) { socketClose(event);};
 	webSocket.onmessage = function(event) { socketMessage(event);};

@@ -33,6 +33,8 @@ public class Gaming {
 
 	int toYear = 0;
 	int fromYear = 0;
+	
+	String username = "";
 	///////////////설정 정보 End///////////////
 	
 	
@@ -61,7 +63,7 @@ public class Gaming {
 	
     	
 	@Builder()
-	public Gaming(int questionCount, boolean songHintCheck, boolean singerHintCheck, boolean rankMod, String sessionId, int toYear, int fromYear ) {
+	public Gaming(int questionCount, boolean songHintCheck, boolean singerHintCheck, boolean rankMod, String sessionId, int toYear, int fromYear, String username ) {
 		this.questionCount = questionCount ;
 		this.songHintCheck = songHintCheck ;
 		this.singerHinCheckt = singerHintCheck;
@@ -69,6 +71,7 @@ public class Gaming {
 		this.sessionId = sessionId;
 		this.toYear = toYear;
 		this.fromYear = fromYear;
+		this.username = username;
 	}
 	
 	
