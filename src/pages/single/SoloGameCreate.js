@@ -6,17 +6,17 @@ const SoloGameCreate = (props) => {
     const location = useLocation()
     const state = location.state
     const [input, setInput] = useState({
-        "userName" : state.name?state.name:"홍길동",
-        "toYear" : null,
-        "fromYear" : null,
-        "questionCount" : null,
-        "modtype" : '',
-        "songHint" : '',
-        "singerHint" : '',
-        "rankMod" : true
+        userName: state.name ? state.name : '홍길동',
+        toYear: null,
+        fromYear: null,
+        questionCount: null,
+        modtype: '',
+        songHint: '',
+        singerHint: '',
+        rankMod: true,
     })
     //화면에서 사용하기 위한 변수를 선언해 비구조화할당을 통해 해당 변수에 Input 값을 추출한다.
-    const { userName,toYear, fromYear, questionCount, singerHint, songHint } = input
+    const { userName, toYear, fromYear, questionCount, singerHint, songHint } = input
 
     // let ws = null
     // ws = new WebSocket(`ws://13.125.191.54:8088/websocket`)
@@ -25,25 +25,26 @@ const SoloGameCreate = (props) => {
         console.log('connected!!')
     }
     props.props.onmessage = (e) => {
-        console.log(JSON.parse(e.data));
+        console.log(JSON.parse(e.data))
         console.log('onmessage!!')
     }
     props.props.onclose = (e) => {
-        console.log('onclose');
+        console.log('onclose')
     }
 
     function onChange(e) {
         const { value, name } = e.target
         // number일경우 형변환
-        if(e.target.name=='toYear'||e.target.name=='fromYear'||e.target.name=='questionCount'){
+        if(e.target.name=='toYear' || e.target.name=='fromYear' || e.target.name=='questionCount'){
             setInput({
                 ...input,
                 [name]: Number(value),
             })
-        }else{// number가 아닐경우 boolean으로 표현하기위해 삼항연산자 활용
+        } else {
+            // number가 아닐경우 boolean으로 표현하기위해 삼항연산자 활용
             setInput({
                 ...input,
-                [name]: value=='true'?true:false,
+                [name]: value == 'true' ? true : false,
             })
         }
     }
@@ -52,7 +53,7 @@ const SoloGameCreate = (props) => {
         window.location.href = '/'
     }
 
-    const onClickMessage= (e)=>{
+    const onClickMessage = (e) => {
         // var msg = {
         //     "userName" : "message",
         //     "toYear" : 2000,
@@ -116,7 +117,7 @@ const SoloGameCreate = (props) => {
                 <div>
                     <Link to="/SoloInGameInterface" state={input}>
                         {/*TODO onClick 이벤트를 통해 서버로 같이 넘겨주기.*/}
-                        <input type={'button'} value={'게임시작'} onClick={onClickMessage}/>
+                        <input type={'button'} value={'게임시작'} onClick={onClickMessage} />
                     </Link>
                 </div>
             </div>
