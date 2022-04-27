@@ -157,14 +157,31 @@ public class GameServiceImpl implements GameService {
 	private void songRandom(Gaming redisGame) {
 
 		List<Integer> songList = songRepo.getSongId(redisGame.getToYear(), redisGame.getFromYear());
+		
 		Collections.shuffle(songList);
-		
+		if(redisGame.getQuestionCount() >songList.size() ) {
 		//questionCount 보다 적은지 확인해야함
-		redisGame.setSongList(songList.subList(0, redisGame.getQuestionCount()));
-		
-		
+			redisGame.setSongList(songList);
+			
+			
+		}
+		else
+			redisGame.setSongList(songList.subList(0, redisGame.getQuestionCount()));
 		
 	}
+	
+	
+	public int songCountCheck(Gaming redisGame) {
+		
+		List<Integer> songList = songRepo.getSongId(redisGame.getToYear(), redisGame.getFromYear());
+		
+		if(redisGame.getQuestionCount()>songList.size() )
+			return songList.size();
+		else
+			return -1;
+		
+	}
+	
 	//노래 uri 제공할때 랜덤으로 id에맞는 편집본 하나를 뽑아서 제공
 	private void sendUri(Gaming redisGame) {
 		
@@ -260,6 +277,8 @@ public class GameServiceImpl implements GameService {
 		
 	}
 	
+	
+	//rank 정보 Db에 저장
 	public void rankSave(Gaming redisGame, WebSocketSession session) {
 		
 		rankRepo.save(
@@ -273,6 +292,7 @@ public class GameServiceImpl implements GameService {
 		
 	}
 	
+	//rankList 화면에 출력
 	public ResponseEntity<JSONObject> getRankList() {
     	JSONObject resultObj = new JSONObject();  
     	try {
@@ -288,4 +308,6 @@ public class GameServiceImpl implements GameService {
     	}
 		
 	}
+	
+	
 }

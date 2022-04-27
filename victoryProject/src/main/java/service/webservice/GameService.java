@@ -15,6 +15,8 @@ public interface GameService {
 	 void rankSave(Gaming redisGame, WebSocketSession session);
 	 
 	 ResponseEntity<JSONObject> getRankList();
+	 
+	 int songCountCheck(Gaming redisGame);
 	
 	//hihi
 }

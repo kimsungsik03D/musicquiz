@@ -53,14 +53,25 @@ public class SoloHandler extends TextWebSocketHandler  {
         	//회원정보 추가일시
         	if(obj.get("userName") != null) {
         		gameMap.put(session.getId(), gameService.gameStart(session.getId(), obj));
-        		
+	
         		Gaming redisGame = gameMap.get(session.getId());
         		
-        		result.put("gaming", true);
-        		result.put("songHint", "");
-        		result.put("singerHint", "");
-        		result.put("songUrl", redisGame.getUri());
-        		result.put("time", 30);
+        		int songCountCheck = gameService.songCountCheck(redisGame);
+        		//요청 노래숫자가 많을시 에러 메시지 출력 -1은 게임 정상적으로 진행한다임
+        		if(songCountCheck==-1 ) {
+            		result.put("gaming", true);
+            		result.put("songHint", "");
+            		result.put("singerHint", "");
+            		result.put("songUrl", redisGame.getUri());
+            		result.put("time", 30);
+        		}
+        		else {
+            		result.put("stat", false);
+            		result.put("songCount", songCountCheck);
+            		result.put("msg", "현재 DB 노래숫자가 요청하신 노래수보다 부족합니다");
+            		gameMap.put(session.getId(),null);
+        		}
+
 
         	}
         		
