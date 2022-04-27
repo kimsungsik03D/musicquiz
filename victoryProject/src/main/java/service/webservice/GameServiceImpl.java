@@ -9,6 +9,8 @@ import java.util.Random;
 
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
 
@@ -34,30 +36,58 @@ public class GameServiceImpl implements GameService {
 	//!dto 추가 작업 해야함
 	public Gaming gameStart(String sessionId, JSONObject gameSet) {
 
+
 		
-		System.out.println(rankRepo.findRankList().get(0).getScore());
+		if((boolean) gameSet.get("rankMod")) {
+			
+			//게임 초기 설정해야하는 목록
+			int toYear = 1990;
+			int fromYear = 2021;
+			
+			Gaming redisGame = Gaming.builder()
+					.questionCount(5)
+					.sessionId(sessionId)
+					.singerHintCheck(true)
+					.songHintCheck(false)
+					.rankMod((boolean) gameSet.get("rankMod"))
+					.username((String) gameSet.get("userName"))
+					.toYear(toYear)
+					.fromYear(fromYear)
+					.build();
+					redisGame.setStarRoundTime(LocalDateTime.now());
+					//노래 리스트 저장 함수
+					songRandom(redisGame);
+					sendUri(redisGame);
+					
+					return redisGame;
+			
+			
+		}else {
+			
+			//게임 초기 설정해야하는 목록
+			int toYear = Integer.parseInt(String.valueOf(gameSet.get("toYear")));
+			int fromYear = Integer.parseInt(String.valueOf(gameSet.get("fromYear")));
+			
+			Gaming redisGame = Gaming.builder()
+					.questionCount(Integer.parseInt(String.valueOf(gameSet.get("questionCount"))))
+					.sessionId(sessionId)
+					.singerHintCheck((boolean) gameSet.get("singerHint"))
+					.songHintCheck((boolean) gameSet.get("songHint"))
+					.rankMod((boolean) gameSet.get("rankMod"))
+					.username((String) gameSet.get("userName"))
+					.toYear(toYear)
+					.fromYear(fromYear)
+					.build();
+					redisGame.setStarRoundTime(LocalDateTime.now());
+					//노래 리스트 저장 함수
+					songRandom(redisGame);
+					sendUri(redisGame);
+					
+					return redisGame;
+			
+		}
 		
-		//게임 초기 설정해야하는 목록
-		int toYear = Integer.parseInt(String.valueOf(gameSet.get("toYear")));
-		int fromYear = Integer.parseInt(String.valueOf(gameSet.get("fromYear")));
 		
-		
-		Gaming redisGame = Gaming.builder()
-		.questionCount(Integer.parseInt(String.valueOf(gameSet.get("questionCount"))))
-		.sessionId(sessionId)
-		.singerHintCheck((boolean) gameSet.get("singerHint"))
-		.songHintCheck((boolean) gameSet.get("songHint"))
-		.rankMod((boolean) gameSet.get("rankMod"))
-		.username((String) gameSet.get("userName"))
-		.toYear(toYear)
-		.fromYear(fromYear)
-		.build();
-		redisGame.setStarRoundTime(LocalDateTime.now());
-		//노래 리스트 저장 함수
-		songRandom(redisGame);
-		sendUri(redisGame);
-		
-		return redisGame;
 	}
 	
 	//답안 받았을때의 처리
@@ -240,6 +270,22 @@ public class GameServiceImpl implements GameService {
 				.cleartime(redisGame.getClearTime())
 				.build()
 				);
+		
+	}
+	
+	public ResponseEntity<JSONObject> getRankList() {
+    	JSONObject resultObj = new JSONObject();  
+    	try {
+    		
+    		resultObj.put("result","true");
+    		resultObj.put("rankList", rankRepo.findRankList());
+    		return new ResponseEntity<JSONObject>(resultObj, HttpStatus.ACCEPTED);
+    	}
+    	catch (Exception e) {
+    		resultObj.put("result","false");
+    		resultObj.put("reason",e);
+    		return new ResponseEntity<JSONObject>(resultObj, HttpStatus.ACCEPTED);
+    	}
 		
 	}
 }

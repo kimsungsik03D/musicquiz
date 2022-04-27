@@ -20,6 +20,8 @@ import service.web.Gaming;
 import service.webservice.GameService;
 import service.webservice.UserService;
 
+import java.lang.NullPointerException;
+
 @Component
 public class SoloHandler extends TextWebSocketHandler  {
 
@@ -33,9 +35,13 @@ public class SoloHandler extends TextWebSocketHandler  {
     public static GameService gameService;
     
 	/*client가 서버에게 메시지 보냄*/
+    
+  
+
+    
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-       
+    	try {
     	
     	String payload = message.getPayload();
        
@@ -76,6 +82,9 @@ public class SoloHandler extends TextWebSocketHandler  {
         			result.put("score", redisGame.getScore());
         			result.put("runningTime", redisGame.getClearTime());
         			sendMessage(session, makeJson(result));
+        			
+        			gameMap.put(session.getId(),null);
+        			
         		}
         		
         		//게임 진행중일시
@@ -98,8 +107,14 @@ public class SoloHandler extends TextWebSocketHandler  {
         			result.put("score", redisGame.getScore());
         				
             		if(gameService.timeHintCheck(redisGame)) {	
-                    	result.put("songHint", redisGame.getSongHint());
-                    	result.put("singerHint", redisGame.getSingerHint());
+            			if(redisGame.isSongHintCheck())
+            				result.put("songHint", redisGame.getSongHint());
+            			else
+            				result.put("songHint", "");
+            			if(redisGame.isSingerHinCheckt())
+            				result.put("singerHint", redisGame.getSingerHint());
+            			else
+            				result.put("singerHint", "");
             		}
             		else {
                     	result.put("songHint", "");
@@ -114,7 +129,14 @@ public class SoloHandler extends TextWebSocketHandler  {
         }
         sendMessage(session, makeJson(result));
         
+        }
+        catch (NullPointerException e) {
+        	
+        }
+        
+        
      }
+
 
     /* Client가 접속 시 호출되는 메서드 */
     @Override
