@@ -8,37 +8,37 @@ import ReactAudioPlayer from 'react-audio-player'
 //TODO : LOGIC  -> create페이지에서 서버에 데이터를 보내면서 화면을 이동하고 inerface화면에서 서버가 던진 데이터를 받아서 초기값 세팅
 //TODO 정답란에 문자입력시 서버에 데이터 전송 후 해당값 받기. 이때 state가 false라면 게임 종료 하면서 스코어 , 런닝타임 출력
 
-
-
 export default function SoloInGameInterface(props) {
     const state = useLocation().state
-    const [gameData,setGameData]=useState({})
+    const [gameData, setGameData] = useState({})
     const [answer, setAnswer] = useState('')
     const [answerData, setAnswerData] = useState([])
     const [qustioncoimt, setQustioncoimt] = useState(state.questionCount)
     const [time, setTime] = useState(gameData.time)
 
     props.props.onopen = (e) => {
-            console.log('connected!!')
-        }
+        console.log('connected!!')
+    }
     props.props.onmessage = (e) => {
         // setGameData(JSON.parse(e.data))
-        console.log('!!!!!!!!',JSON.parse(e.data));
-        setGameData({gaming: true,
-            singerHint: "",
-            songHint: "",
-            songUrl: 'https://docs.google.com/uc?export=open&id=1xM0Lh3wy0akEcm4WaSztiVscw5_lwOlh'})
-            // songUrl: 'https://docs.google.com/uc?export=open&id=1fN2mEqy2HDeDnRcyRGpEC44W8gdNMl0O'})
+        console.log('!!!!!!!!', JSON.parse(e.data))
+        setGameData({
+            gaming: true,
+            singerHint: '',
+            songHint: '',
+            songUrl: 'https://docs.google.com/uc?export=open&id=1xM0Lh3wy0akEcm4WaSztiVscw5_lwOlh',
+        })
+        // songUrl: 'https://docs.google.com/uc?export=open&id=1fN2mEqy2HDeDnRcyRGpEC44W8gdNMl0O'})
 
-            console.log('onmessage!!')
-        }
+        console.log('onmessage!!')
+    }
     props.props.onclose = (e) => {
-            console.log('onclose',e);
-        }
+        console.log('onclose', e)
+    }
 
     // 소켓에서 받아오는 모든 메시지는 useEffec를 통해 관리한다.
     //20220426 서버에서 받아오는 URL에 ' 이 포함되어있어서 정상적인 노래 재생만 안되고있음 다만 songURL을 강제적으로 변경해주면 노래 나옴.
-    useEffect(()=>{
+    useEffect(() => {
         props.props.onmessage = (e) => {
             setGameData(JSON.parse(e.data))
             /*setGameData({gaming: true,
@@ -61,25 +61,23 @@ export default function SoloInGameInterface(props) {
             })*/
 
             setTime(JSON.parse(e.data).time)
-            console.log('서버 메시지 : ',JSON.parse(e.data));
+            console.log('서버 메시지 : ', JSON.parse(e.data))
         }
-    },[props.props.onmessage])
-
-
+    }, [props.props.onmessage])
 
     /* 시간초 계산 */
     useEffect(() => {
         const countdown = setInterval(() => {
             if (parseInt(time) > 0) {
-                if (parseInt(time)  == 15) {
-                    props.props.send(JSON.stringify({'answer':''}))
+                if (parseInt(time) == 15) {
+                    props.props.send(JSON.stringify({ answer: '' }))
                 }
 
                 setTime(parseInt(time) - 1)
             }
             if (parseInt(time) == 0) {
                 //TODO 시간이 0이면 서버에서 다시 한번 더 정보를 가져와야함
-                props.props.send(JSON.stringify({'answer':''}))
+                props.props.send(JSON.stringify({ answer: '' }))
             }
         }, 1000)
         return () => clearInterval(countdown)
@@ -99,10 +97,10 @@ export default function SoloInGameInterface(props) {
     function onClickAnswer() {
         //TODO 스크롤 제어 필요함.
 
-        console.log("입력한 정답은 : ",answer,'입니다.');
+        console.log('입력한 정답은 : ', answer, '입니다.')
         // TODO 서버에 데이터 전송하기.
 
-      /*  var msg = {
+        /*  var msg = {
             "userName" : "message",
             "toYear" : 2000,
             "fromYear" : 2020,
@@ -113,10 +111,9 @@ export default function SoloInGameInterface(props) {
             "rankMod" : true
 
         }*/
-        props.props.send(JSON.stringify({'answer':answer}))
+        props.props.send(JSON.stringify({ answer: answer }))
         setAnswerData((answerData) => [...answerData, answer])
         setAnswer('')
-
     }
 
     return (
@@ -155,7 +152,7 @@ export default function SoloInGameInterface(props) {
                         <div>{time} 초</div>
                         {/*<div className={gameData.answerCheck?'success':'fail'}>{gameData.answerCheck?"정답입니다":"오답입니다."}</div>*/}
                         {/*css에서 문구 제어*/}
-                        <div className={gameData.answerCheck?'success':'fail'}/>
+                        <div className={gameData.answerCheck ? 'success' : 'fail'} />
                     </div>
                 </div>
                 <div className={'content4'}>
