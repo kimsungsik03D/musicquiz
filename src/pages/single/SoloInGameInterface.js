@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import './SoloInGameInterface.css'
 import { useLocation } from 'react-router-dom'
 import ReactAudioPlayer from 'react-audio-player'
+import Modal from'react-modal'
 // import { sampledata,sampleserverdata } from './noadd/gameData'
 // import music1 from '../../assats/music/LOVELOVELOVE편집1.m4a'
 // import music1 from 'https://docs.google.com/uc?export=open&id=19x2wK4FSk8WS86XD0TWTKx38hgWuO1dx'
@@ -9,6 +10,7 @@ import ReactAudioPlayer from 'react-audio-player'
 //TODO 정답란에 문자입력시 서버에 데이터 전송 후 해당값 받기. 이때 state가 false라면 게임 종료 하면서 스코어 , 런닝타임 출력
 
 export default function SoloInGameInterface(props) {
+    const [isOpen,setIsOpen] = useState(false)
     const state = useLocation().state
     const [gameData, setGameData] = useState({})
     const [answer, setAnswer] = useState('')
@@ -22,12 +24,12 @@ export default function SoloInGameInterface(props) {
     props.props.onmessage = (e) => {
         // setGameData(JSON.parse(e.data))
         console.log('!!!!!!!!', JSON.parse(e.data))
-        setGameData({
-            gaming: true,
-            singerHint: '',
-            songHint: '',
-            songUrl: 'https://docs.google.com/uc?export=open&id=1xM0Lh3wy0akEcm4WaSztiVscw5_lwOlh',
-        })
+        // setGameData({
+        //     gaming: true,
+        //     singerHint: '',
+        //     songHint: '',
+        //     songUrl: 'https://docs.google.com/uc?export=open&id=1xM0Lh3wy0akEcm4WaSztiVscw5_lwOlh',
+        // })
         // songUrl: 'https://docs.google.com/uc?export=open&id=1fN2mEqy2HDeDnRcyRGpEC44W8gdNMl0O'})
 
         console.log('onmessage!!')
@@ -62,6 +64,12 @@ export default function SoloInGameInterface(props) {
 
             setTime(JSON.parse(e.data).time)
             console.log('서버 메시지 : ', JSON.parse(e.data))
+            if(gameData.gaming==false){
+
+                setIsOpen(true)
+                setGameData( {...gameData, songUrl : '' })
+                props.props.close()
+            }
         }
     }, [props.props.onmessage])
 
@@ -115,7 +123,9 @@ export default function SoloInGameInterface(props) {
         setAnswerData((answerData) => [...answerData, answer])
         setAnswer('')
     }
-
+    const EndGame= <div>runningTime : {gameData.runningTime}
+                    <br/>
+                    score : {gameData.score}<br/></div>
     return (
         <div className={'mainContainer'}>
             <div className={'SoloHeader'}>
@@ -131,7 +141,7 @@ export default function SoloInGameInterface(props) {
                     {/*음량 은 0~1.0 사이값으로 지정.*/}
                     {/*https://www.npmjs.com/package/react-audio-player*/}
                     <div>
-                        <ReactAudioPlayer src={gameData.songUrl} autoPlay controls loop/>
+                        <ReactAudioPlayer src={gameData.songUrl} autoPlay controls loop volume={0.5}/>
                         {/*<ReactAudioPlayer src={'https://docs.google.com/uc?export=open&id=1pyEtoyEPMXp1pdsVW76FzQaxRCEGO2az'} autoPlay controls loop/>*/}
                     </div>
                 </div>
@@ -143,7 +153,7 @@ export default function SoloInGameInterface(props) {
                     <div>
                         점수판(score Board)
                         <br />
-                        맞춘점수 : {gameData.score} 개 <br /> 남은문제 {`${qustioncoimt} / ${state.questionCount}`}
+                        맞춘점수 : {gameData.score?gameData.score:0} 개 <br /> 남은문제 {`${qustioncoimt} / ${state.questionCount}`}
                     </div>
                 </div>
                 <div className={'content3'}>
@@ -168,7 +178,16 @@ export default function SoloInGameInterface(props) {
                     />
                     <input type="button" value="입력" onClick={onClickAnswer} />
                 </div>
+                <Modal isOpen={isOpen} ariaHideApp={false}>
+                    hi this Is Modal<br/>
+                    runningTime : {gameData.runningTime}
+                    <br/>
+                    score : {gameData.score}<br/>
+                    <div onClick={onClickGoHome}>홈으로</div>
+                </Modal>
             </div>
+            <input type={'button'} onClick={()=> setIsOpen(!isOpen)} value={'모달창'}/>
+
         </div>
     )
 }
