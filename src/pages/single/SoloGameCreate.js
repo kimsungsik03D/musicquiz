@@ -6,14 +6,14 @@ const SoloGameCreate = (props) => {
     const location = useLocation()
     const state = location.state
     const [input, setInput] = useState({
-        userName: state.name ? state.name : '홍길동',
+        userName: state.userName?state.userName:'' ,
         toYear: null,
         fromYear: null,
         questionCount: null,
         modtype: '',
         songHint: '',
         singerHint: '',
-        rankMod: true,
+        rankMod : '',
     })
     //화면에서 사용하기 위한 변수를 선언해 비구조화할당을 통해 해당 변수에 Input 값을 추출한다.
     const { userName, toYear, fromYear, questionCount, singerHint, songHint } = input
@@ -98,10 +98,17 @@ const SoloGameCreate = (props) => {
                             비공개
                         </div>
                         <div>
-                            노래 초성 힌트 :{' '}
+                            modtype :{' '}
                             <input type={'radio'} name={'modtype'} id={'singertitleonpen'}  value={true} onClick={onChange} />{' '}
                             공개{' '}
                             <input type={'radio'} name={'modtype'} id={'singertitleoclose'} value={false} onClick={onChange} />{' '}
+                            비공개
+                        </div>
+                        <div>
+                            rankMod :{' '}
+                            <input type={'radio'} name={'rankMod'} id={'singertitleonpen'}  value={true} onClick={onChange} />{' '}
+                            공개{' '}
+                            <input type={'radio'} name={'rankMod'} id={'singertitleoclose'} value={false} onClick={onChange} />{' '}
                             비공개
                         </div>
                     </div>
