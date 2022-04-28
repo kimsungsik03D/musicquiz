@@ -130,9 +130,9 @@ export default function SoloInGameInterface(props) {
         <div className={'mainContainer'}>
             <div className={'SoloHeader'}>
                 <div onClick={onClickGoHome}>솔로</div>
-                <div>{state.name}</div>
+                <div>{state.userName}</div>
                 <div>
-                    {state.toDate} - {state.fromDate}
+                    {state.toYear} - {state.fromYear}
                 </div>
             </div>
             <div className={'container'}>
