@@ -21,7 +21,7 @@ export default function Main() {
                     {/*<Link to={'SoloGameCreate'}>솔로방만들기(임시)</Link>*/}
                 </div>
                 <div>
-                    <Link to={'#'}>멀티</Link>
+                    <Link to={'multiGameCreate'}>멀티</Link>
                 </div>
                 <div>
                     <Link to={'#'}>사용자설정</Link>
