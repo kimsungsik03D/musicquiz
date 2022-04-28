@@ -6,15 +6,26 @@ const SoloGameCreate = (props) => {
     const location = useLocation()
     const state = location.state
     const [input, setInput] = useState({
-        userName: state.userName?state.userName:'' ,
+        userName: state.userName ? state.userName : '',
         toYear: null,
         fromYear: null,
         questionCount: null,
         modtype: '',
         songHint: '',
         singerHint: '',
-        rankMod : '',
+        rankMod: '',
     })
+
+    const freeMode = {
+        userName: state.userName ? state.userName : '',
+        toYear: 2000,
+        fromYear: 2022,
+        questionCount: 5,
+        modtype: true,
+        songHint: false,
+        singerHint: true,
+        rankMod: true,
+    }
     //화면에서 사용하기 위한 변수를 선언해 비구조화할당을 통해 해당 변수에 Input 값을 추출한다.
     const { userName, toYear, fromYear, questionCount, singerHint, songHint } = input
 
@@ -54,16 +65,9 @@ const SoloGameCreate = (props) => {
     }
 
     const onClickMessage = (e) => {
-        // var msg = {
-        //     "userName" : "message",
-        //     "toYear" : 2000,
-        //     "fromYear" : 2020,
-        //     "questionCount" :2 ,
-        //     "modtype" :true,
-        //     "songHint" : true,
-        //     "singerHint" : true,
-        //     "rankMod" : true
-        // }
+        if (input.rankMod == true) {
+            props.props.send(JSON.stringify(freeMode))
+        }
         props.props.send(JSON.stringify(input))
     }
     return (
@@ -122,7 +126,7 @@ const SoloGameCreate = (props) => {
                     </div>
                 </div>
                 <div>
-                    <Link to="/SoloInGameInterface" state={input}>
+                    <Link to="/SoloInGameInterface" state={input.rankMod ? freeMode : input}>
                         {/*TODO onClick 이벤트를 통해 서버로 같이 넘겨주기.*/}
                         <input type={'button'} value={'게임시작'} onClick={onClickMessage} />
                     </Link>

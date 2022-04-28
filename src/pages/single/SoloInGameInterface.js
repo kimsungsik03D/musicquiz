@@ -64,6 +64,9 @@ export default function SoloInGameInterface(props) {
 
             setTime(JSON.parse(e.data).time)
             console.log('서버 메시지 : ', JSON.parse(e.data))
+            if(gameData.answerCheck==true){
+                setQustioncoimt(qustioncoimt-1)
+            }
             if(gameData.gaming==false){
 
                 setIsOpen(true)
@@ -180,7 +183,7 @@ export default function SoloInGameInterface(props) {
                 </div>
                 <Modal isOpen={isOpen} ariaHideApp={false}>
                     hi this Is Modal<br/>
-                    runningTime : {gameData.runningTime}
+                    runningTime : {(gameData.runningTime/1000).toFixed(2)}초
                     <br/>
                     score : {gameData.score}<br/>
                     <div onClick={onClickGoHome}>홈으로</div>
