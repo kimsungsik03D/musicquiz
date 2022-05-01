@@ -15,6 +15,14 @@ import TestPage from './pages/single/noadd/testPage';*/
 function App() {
   let ws = null
   ws = new WebSocket(`ws://13.125.191.54:8088/websocket`)
+
+  ws.onopen = (e) => {
+    console.log('connected!!')
+  }
+  ws.onerror=(e)=>{
+
+  }
+
   return (
    <Router>
      <Routes>
