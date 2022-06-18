@@ -8,8 +8,9 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 
 import lombok.RequiredArgsConstructor;
 import service.web.Intercepter.IpHandshakeInterceptor;
-import service.web.handler.SoloHandler;
-import service.webservice.GameService;
+import service.web.handler.MultiHandler;
+import service.webservice.MultiGameService;
+import service.webservice.RoomService;
 //import service.web.WebSocket;
 import service.webservice.UserService;
 
@@ -25,9 +26,18 @@ public class SocketConfig implements WebSocketConfigurer{
 	}
 
 	*/
-    private final SoloHandler chatHandler;
-
-    
+	
+	//솔로모드 서버 설정
+    /*private final SoloHandler chatHandler;
+     * 
+     * 	@Autowired
+	public void setGameService(GameService gameService) {
+		chatHandler.gameService = gameService ;
+	}	
+     * 
+*/
+    //멀티모드 서버 설정
+    private final MultiHandler chatHandler;
     
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
@@ -46,8 +56,12 @@ public class SocketConfig implements WebSocketConfigurer{
 	}
 	
 	@Autowired
-	public void setGameService(GameService gameService) {
+	public void setGameService(MultiGameService gameService) {
 		chatHandler.gameService = gameService ;
 	}	
-	
+
+	@Autowired
+	public void setRoomService(RoomService roomService) {
+		chatHandler.roomService = roomService ;
+	}	
 }

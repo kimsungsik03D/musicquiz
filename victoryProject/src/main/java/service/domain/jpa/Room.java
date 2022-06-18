@@ -2,12 +2,13 @@ package service.domain.jpa;
 
 
 
-import org.springframework.web.socket.WebSocketSession;
+import java.util.ArrayList;
+import java.util.List;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import service.web.Gaming;
+import service.web.MultiGaming;
 
 /*
  *멀티모드에서 사용되는 방 객체이다.
@@ -22,21 +23,24 @@ public class Room {
 
 	//방에 들어온 유저 수다. 
 	@Setter(AccessLevel.NONE)
-	WebSocketSession[] userList = new WebSocketSession[2];
+	List<String> userList = new ArrayList<String>();
 	
 	//유저 0과 1이 모두 ready를 눌렀는지 알려준다.
 	@Setter(AccessLevel.NONE)
-	boolean[] userReady = {false, false } ;
+	List<String> userReady = new ArrayList<String>();
 	
 	//유저 0과 1이 모두 재시작을 눌렀는지 알려준다.
 	@Setter(AccessLevel.NONE)
-	boolean[] userRestart = {false, false } ;
+	List<String> userRestart = new ArrayList<String>();
 	
 	//방 아이디 정보
-	private int roomId ;
+	private String roomId ;
+	
+	//방장 아이디 정보
+	private String roomOwner;
 	
 	//게이밍 객체 정보
-	private Gaming gaming ;
+	private MultiGaming gaming ;
 	
 	
 	//웹 객체가 게이밍 객체 연산을 처리했나 확인 (첫번째 유저를 통해 게이밍 연산을 진행했다면 true로 변경됨, 다른 유저 차례에서는 gaming 연산 안하고 패스후 false로 바뀜)
@@ -46,104 +50,8 @@ public class Room {
 	private boolean progress ;
 	
 
-	//start 클릭할때
-	public void userclickStart(WebSocketSession session) {
-		for(int i=0; i<2; i++) {
-			if(userList[i] == session) 
-				userRestart[i] = true;
-		}
-	}
-	
-	
-	//방 인원이 전부 들어왔는지 확인
-	public boolean userAllJoin() {
-		for(int i =0; i<2; i++) {
-			
-			if(userList[i] == null) 
-				return false;	
-		}	
-		return true;
-	}
-	
-	
-	//user 들어올때
-	public boolean userJoin(WebSocketSession user) {
-		
-		 
-		if(!userAllJoin()) {
-		
-		for(int i =0; i<2; i++) {
-			if(userList[i] == null) {
-				userList[i] = user ;
-
-				break;
-			}
-			
-		}	
-		
-		return true;
-		}
-		else {
-		return false;
-		}
-	}	
-
-	//user 나갈때
-	public void userOut(WebSocketSession user) {
-		for(int i =0; i<2; i++) {
-			if(userList[i] == user) {
-				userList[i] = null ;
-				break;
-			}
-		}	
-	}
-	
-	//방의 다른 유저 정보 있는지 확인
-	public boolean anotherUserCheck(WebSocketSession user ) {
-		for(int i=0; i<2; i++) {
-			if(userList[i] != user && userList[i] != null) 
-				return true ;
-		}
-		
-		return false ;
-	}	
-	
-	//방의 다른 유저 정보 전달
-	public WebSocketSession anotherUser(WebSocketSession user ) {
-		for(int i=0; i<2; i++) {
-			if(userList[i] != null) 
-				if(!userList[i].equals(user))
-				return userList[i];
-		}
-		
-		return null ;
-	}
-		
-	//모든 유저가 ready를 눌렀나 확인
-	public boolean userAllReady() {
-		for(int i=0; i<2; i++) {
-			if(!userReady[i])
-				return false;
-		}
-		
-		return true;
-	}
-	
-	
-	//모든 유저가 재시작을 눌렀나 확인후 전부 재시작 눌렀을시 false로 변환
-	public boolean userAllReStart() {
-		for(int i=0; i<2; i++) {
-			if(!userRestart[i])
-				return false;
-		}
-		
-		//전부 재시작 눌렀을경우 false로 초기화하고 true 반환
-		for(int i=0; i<2; i++) {
-			userRestart[i] = false;
-		}
-		
-		return true;
-	}	
-	
+	//강퇴 리스트
+	@Setter(AccessLevel.NONE)
+	private List<String> blackList = new ArrayList<String>();
 	
 }

@@ -12,9 +12,10 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.websocket.Session;
+import javax.persistence.Transient;
 
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.web.socket.WebSocketSession;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,8 +33,8 @@ public class User extends CreateTimeEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private String id ;
 	
-	@Column()
-	private String session ;
+	@Transient
+	private WebSocketSession session ;
 	
 	@Column()
 	private String userid ;
@@ -41,10 +42,19 @@ public class User extends CreateTimeEntity {
 	@CreatedDate
 	private LocalDateTime createdDate;
 	
+	private String userNm;
+	
+	private String roomId;
+	
+	public void setRoomId(String roomId) {
+		this.roomId = roomId;
+	}
+	
 	@Builder()
-	private User(String session, String userid ) {
+	private User(WebSocketSession session, String userid ) {
 		this.session = session ;
 		this.userid = userid ;
+		this.userNm = userid;
 	}
 	
 
