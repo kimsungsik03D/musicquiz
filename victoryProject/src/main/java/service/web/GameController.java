@@ -26,7 +26,7 @@ public class GameController {
 		
 	@GetMapping("/")
 	public String startIndex() {
-		return "view";
+		return "view2";
 	}
 	
 	

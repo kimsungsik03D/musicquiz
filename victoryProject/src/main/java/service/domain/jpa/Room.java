@@ -25,7 +25,7 @@ public class Room {
 	@Setter(AccessLevel.NONE)
 	List<String> userList = new ArrayList<String>();
 	
-	//유저 0과 1이 모두 ready를 눌렀는지 알려준다.
+	//유저들이 모두 ready를 눌렀는지 알려준다.
 	@Setter(AccessLevel.NONE)
 	List<String> userReady = new ArrayList<String>();
 	
