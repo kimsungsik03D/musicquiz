@@ -137,29 +137,31 @@ public class MultiHandler extends TextWebSocketHandler  {
         		//게임 시작이나 ready start 될시 result에 보내줘야함
         		else if(obj.get("roomStatus").equals("start")) {
         			String roomId = (String) obj.get("roomId");
-        			roomService.userclickStart(roomMap.get(roomId), session.getId());
-        			
+        			boolean gameStart = roomService.userclickStart(roomMap.get(roomId), session.getId());
 
             		//요청 노래숫자가 많을시 에러 메시지 출력 -1은 게임 정상적으로 진행한다임
             		
             		//방장일때 start
-            		if(roomMap.get(roomId).getRoomOwner().equals(session.getId())) {
-            			
-                		MultiGaming redisGame = gameMap.get(roomId);
+            		if(roomMap.get(roomId).getRoomOwner().equals(session.getId()) && gameStart) {
+            			System.out.println("시작");
+                		
+        				roomMap.get(roomId).setGaming(gameService.gameStart(session.getId(), obj));
+        				
+        				//MultiGaming redisGame = gameMap.get(roomId);
+        				MultiGaming redisGame = roomMap.get(roomId).getGaming();
                 		int songCountCheck = gameService.songCountCheck(redisGame);
-            			
-                		if(songCountCheck==-1 ) {
+                		System.out.println(songCountCheck);
+                		if(songCountCheck ==-1 ) {
                     		result.put("gaming", true);
                     		result.put("songHint", "");
                     		result.put("singerHint", "");
                     		result.put("songUrl", redisGame.getUri());
                     		result.put("time", 30);
                     		
-                    		gameMap.put(roomId, gameService.gameStart(roomId, obj));
                     		
                     		//게임 score 정보 초기화
                     		for (String u : roomMap.get(roomId).getUserList()) {
-                    			redisGame.getScore().put(u, 0);
+                    			redisGame.getScore().put(u, 0); 
                     			sendMessage(userMap.get(u).getSession(), makeJson(result));
                     		}
 
@@ -168,17 +170,43 @@ public class MultiHandler extends TextWebSocketHandler  {
                     		result.put("stat", false);
                     		result.put("songCount", songCountCheck);
                     		result.put("msg", "현재 DB 노래숫자가 요청하신 노래수보다 부족합니다");
-                    		gameMap.put(session.getId(),null);
+                    		//gameMap.put(session.getId(),null);
+                    		roomMap.get(roomId).setGaming(null);
                     		
                     		for (String u : roomMap.get(roomId).getUserList()) 
                     			sendMessage(userMap.get(u).getSession(), makeJson(result));
 
                 		}
+            		} 
+            		else if(roomMap.get(roomId).getRoomOwner().equals(session.getId()) && !gameStart) {
+            			System.out.println("못함");
+            			result.put("stat", false);
+                		result.put("msg", "모든 유저가 Ready가 아님");
+                		
+                		for (String u : roomMap.get(roomId).getUserList()) 
+                			sendMessage(userMap.get(u).getSession(), makeJson(result));                		
+            			
             		}
             		//일반 유저일떄 ready나 ready 해제는 룸서비스 userclickStart가 처리
+            		else {
+            			
+            			if(roomMap.get(roomId).getUserReady().contains(session.getId())) {
+            				result.put("ready", true);
+            				result.put("userId", session.getId());
+                    		for (String u : roomMap.get(roomId).getUserList()) 
+                    			sendMessage(userMap.get(u).getSession(), makeJson(result));
+            			}
+            			else {
+            				result.put("ready", false);
+            				result.put("userId", session.getId());
+                    		for (String u : roomMap.get(roomId).getUserList()) 
+                    			sendMessage(userMap.get(u).getSession(), makeJson(result));
+            			}
+            				
+            			
+            		}
             		
-        			
-        			
+            		       			
         		}
         		else if(obj.get("roomStatus").equals("setting")) {
         			String roomId = (String) obj.get("roomId");
@@ -213,7 +241,7 @@ public class MultiHandler extends TextWebSocketHandler  {
         		MultiGaming redisGame = gameMap.get(roomId);
         		boolean answerCheck = gameService.answerCheck((String) obj.get("answer"), redisGame);
         		boolean endCheck = gameService.gameCtrl(session.getId(),(String) obj.get("answer"), redisGame);
-        		
+        		System.out.println("게임 시작");
         		//end면 게임 끝
         		if(!endCheck) {
 
@@ -232,7 +260,7 @@ public class MultiHandler extends TextWebSocketHandler  {
         		
         		//게임 진행중일시
         		else {
-
+        			System.out.println("게임 진행");
 	        		result.put("gaming", true);
 	        		result.put("time", redisGame.getRemainTime());
 	        			

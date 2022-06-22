@@ -21,16 +21,16 @@ public class RoomServiceImpl implements RoomService {
 	
 	//start나 ready 클릭할때
 	//게임 시작 조건이 충족될시 true, 아닐시 false 
-	public boolean userclickStart(Room room, String session) {
-		if(room.getUserList().contains(session) && !room.getRoomOwner().equals(session) ) {
-			if(room.getUserReady().contains(session)) 
-				room.getUserReady().add(session);
+	public boolean userclickStart(Room room, String sessionId) {
+		if(room.getUserList().contains(sessionId) && !room.getRoomOwner().equals(sessionId) ) {
+			if(!room.getUserReady().contains(sessionId)) 
+				room.getUserReady().add(sessionId);
 			else
-				room.getUserReady().remove(session);
+				room.getUserReady().remove(sessionId);
 
 			return false;
 		}
-		else if(room.getUserList().contains(session) && room.getRoomOwner().equals(session) ) {
+		else if(room.getRoomOwner().equals(sessionId) ) {
 			if(room.getUserReady().size()== room.getUserList().size()-1) {
 			
 				room.setProgress(true);

@@ -41,13 +41,14 @@ public class MultiGameServiceImpl implements MultiGameService{
 		int fromYear = 2021;
 			
 		MultiGaming redisGame = MultiGaming.builder()
-				.questionCount(5)
+				.questionCount(3)
 				.roomId(roomId)
 				.singerHintCheck(true)
 				.songHintCheck(false)
 				.toYear(toYear)
 				.fromYear(fromYear)
 				.build();
+		
 				redisGame.setStarRoundTime(LocalDateTime.now());
 				//노래 리스트 저장 함수
 				songRandom(redisGame);
@@ -121,13 +122,13 @@ public class MultiGameServiceImpl implements MultiGameService{
 	//게임 객체에 플레이 갯수에 맞추어 조건에 맞는 노래 id 리스트 저장하는함수
 	private void songRandom(MultiGaming redisGame) {
 
-		List<Integer> songList = songRepo.getSongId(redisGame.getToYear(), redisGame.getToYear());
+		List<Integer> songList = songRepo.getSongId(redisGame.getToYear(), redisGame.getFromYear());
 		
 		Collections.shuffle(songList);
 		if(redisGame.getQuestionCount() >songList.size() ) {
 		//questionCount 보다 적은지 확인해야함
 			redisGame.setSongList(songList);
-			
+			System.out.println(songList.size());
 			
 		}
 		else
