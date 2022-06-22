@@ -67,6 +67,10 @@ public class MultiHandler extends TextWebSocketHandler  {
         			 
         	            String roomId = Integer.toHexString(nextRoomId);
         	            
+        	            if(obj.get("userNm") != null)
+        	            	userMap.get(session.getId()).setUserNm(roomId);
+        	            
+        	            
         	            nextRoomId++;
         	            roomMap.put(roomId, roomService.roomCreate(roomId));
         	            //방에 들어감
@@ -77,6 +81,7 @@ public class MultiHandler extends TextWebSocketHandler  {
                 		result.put("result", true);
                 		result.put("roomId", roomId);
                 		result.put("userId", session.getId());
+                		result.put("userNm", userMap.get(session.getId()).getUserNm());
                 		sendMessage(session, makeJson(result));
         		}
         		//방입장
@@ -104,8 +109,14 @@ public class MultiHandler extends TextWebSocketHandler  {
         				//방에 들어감
         	            if(roomService.userJoin(roomMap.get(roomId), session.getId())) {
         	            	userMap.get(session.getId()).setRoomId(roomId);
+        	            	
+        	            	//이름 설정
+            	            if(obj.get("userNm") != null)
+            	            	userMap.get(session.getId()).setUserNm(roomId);
+        	            	
                     		result.put("result", true);
                     		result.put("userId", session.getId());
+                    		result.put("userNm", userMap.get(session.getId()).getUserNm());
                     		
             				for (String u : roomMap.get(roomId).getUserList()) 
             					sendMessage(userMap.get(u).getSession(), makeJson(result));
@@ -127,7 +138,7 @@ public class MultiHandler extends TextWebSocketHandler  {
         			if(roomMap.get(roomId).getRoomOwner().equals(session.getId())) {
         				
         				
-        				result.put("result", true);
+        				result.put("delete", true);
         				for (String u : roomMap.get(roomId).getUserList()) 
         					sendMessage(userMap.get(u).getSession(), makeJson(result));
         				
@@ -138,9 +149,7 @@ public class MultiHandler extends TextWebSocketHandler  {
         				roomMap.get(roomId).getUserList().clear();
         				roomMap.replace(roomId, null);
         				
-
-        					
-        					
+      					
         			}
         		}   
         		//게임 시작이나 ready start 될시 result에 보내줘야함
@@ -201,12 +210,14 @@ public class MultiHandler extends TextWebSocketHandler  {
             			if(roomMap.get(roomId).getUserReady().contains(session.getId())) {
             				result.put("ready", true);
             				result.put("userId", session.getId());
+            				result.put("userNm", userMap.get(session.getId()).getUserNm());
                     		for (String u : roomMap.get(roomId).getUserList()) 
                     			sendMessage(userMap.get(u).getSession(), makeJson(result));
             			}
             			else {
             				result.put("ready", false);
             				result.put("userId", session.getId());
+            				result.put("userNm", userMap.get(session.getId()).getUserNm());
                     		for (String u : roomMap.get(roomId).getUserList()) 
                     			sendMessage(userMap.get(u).getSession(), makeJson(result));
             			}
@@ -269,7 +280,9 @@ public class MultiHandler extends TextWebSocketHandler  {
 
     	        		result.put("gaming", true);
     	        		result.put("time", redisGame.getRemainTime());
-    	        			
+    	        		result.put("answer", obj.get("answer"));
+    	        		result.put("userId", session.getId());
+    	        		result.put("userNm", userMap.get(session.getId()).getUserNm());
     	        		//정답이 맞았나 체크
     	        		if(answerCheck) {
     	        				
@@ -277,16 +290,12 @@ public class MultiHandler extends TextWebSocketHandler  {
     	        			result.put("songUrl", redisGame.getUri());
     	        			result.put("score", redisGame.getScore());
     	        			
-    	        			//!유저ID에서 이름 전달로 바뀔 수 있음
-    	        			result.put("userId", session.getId());
-    	        			
-    	        			
-    	                	for (String u : roomMap.get(roomId).getUserList()) 
-    	                		sendMessage(userMap.get(u).getSession(), makeJson(result));
+
+    	        		    	    
     	                	
     	                	
     	        			}
-    	      
+    	        		else {
     	        			//정답이 틀렸을경우 힌드틑 함께 제공해줘야하나 체크
     	        			result.put("answerCheck", false);
     	        			result.put("songUrl", redisGame.getUri());
@@ -308,7 +317,11 @@ public class MultiHandler extends TextWebSocketHandler  {
     	            		}
                 		
             			
-            				
+    	        		}	
+    	        		
+	                	for (String u : roomMap.get(roomId).getUserList()) 
+	                		sendMessage(userMap.get(u).getSession(), makeJson(result));
+    	        		
             		}     		
 
             	}    

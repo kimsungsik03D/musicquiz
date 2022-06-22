@@ -50,12 +50,18 @@ public class User extends CreateTimeEntity {
 		this.roomId = roomId;
 	}
 	
+	public void setUserNm(String userNm) {
+		this.userNm = userNm ;
+	}	
+	
 	@Builder()
 	private User(WebSocketSession session, String userid ) {
 		this.session = session ;
 		this.userid = userid ;
 		this.userNm = userid;
 	}
+	
+
 	
 
 }
