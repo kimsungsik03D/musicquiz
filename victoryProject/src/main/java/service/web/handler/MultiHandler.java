@@ -76,7 +76,7 @@ public class MultiHandler extends TextWebSocketHandler  {
         	            
                 		result.put("result", true);
                 		result.put("roomId", roomId);
-
+                		result.put("userId", session.getId());
                 		sendMessage(session, makeJson(result));
         		}
         		//방입장
@@ -85,9 +85,18 @@ public class MultiHandler extends TextWebSocketHandler  {
         			
         			if(roomMap.get(roomId)==null) {
         				//없는 방이라는 메시지 전달
+                   		result.put("result", false);
+                		result.put("msg", "존재하지 않는 방입니다");
         			}
         			else if(roomMap.get(roomId).getUserList().size()>3) {
         				//인원이 가득찬 방이라는 메시지 전달 
+                   		result.put("result", false);
+                		result.put("msg", "인원이 가득찬 방입니다");
+        			}
+        			else if(roomMap.get(roomId).isProgress()) {
+        				//인원이 가득찬 방이라는 메시지 전달 
+                   		result.put("result", false);
+                		result.put("msg", "게임이 시작한 방입니다");
         			}
         			
         			else {
@@ -143,14 +152,13 @@ public class MultiHandler extends TextWebSocketHandler  {
             		
             		//방장일때 start
             		if(roomMap.get(roomId).getRoomOwner().equals(session.getId()) && gameStart) {
-            			System.out.println("시작");
                 		
         				roomMap.get(roomId).setGaming(gameService.gameStart(session.getId(), obj));
         				
         				//MultiGaming redisGame = gameMap.get(roomId);
         				MultiGaming redisGame = roomMap.get(roomId).getGaming();
                 		int songCountCheck = gameService.songCountCheck(redisGame);
-                		System.out.println(songCountCheck);
+
                 		if(songCountCheck ==-1 ) {
                     		result.put("gaming", true);
                     		result.put("songHint", "");
@@ -179,7 +187,7 @@ public class MultiHandler extends TextWebSocketHandler  {
                 		}
             		} 
             		else if(roomMap.get(roomId).getRoomOwner().equals(session.getId()) && !gameStart) {
-            			System.out.println("못함");
+
             			result.put("stat", false);
                 		result.put("msg", "모든 유저가 Ready가 아님");
                 		
@@ -232,97 +240,96 @@ public class MultiHandler extends TextWebSocketHandler  {
         				
         		}
         		
-        	}
-        	
-        	//게임진행중일때
-        	else if(obj.get("roomStatus").equals("gaming")) {
-        		String roomId = (String) obj.get("roomId");
         		
-        		MultiGaming redisGame = gameMap.get(roomId);
-        		boolean answerCheck = gameService.answerCheck((String) obj.get("answer"), redisGame);
-        		boolean endCheck = gameService.gameCtrl(session.getId(),(String) obj.get("answer"), redisGame);
-        		System.out.println("게임 시작");
-        		//end면 게임 끝
-        		if(!endCheck) {
+            	//게임진행중일때
+            	else if(obj.get("roomStatus").equals("gaming")) {
+            		String roomId = (String) obj.get("roomId");
+            		
+            		MultiGaming redisGame = roomMap.get(roomId).getGaming();
+            		boolean answerCheck = gameService.answerCheck((String) obj.get("answer"), redisGame);
+            		boolean endCheck = gameService.gameCtrl(session.getId(),(String) obj.get("answer"), redisGame);
+            		//end면 게임 끝
+            		if(!endCheck) {
 
-        			
-        			result.put("gaming", false);
+
+            			result.put("gaming", false);
+            			result.put("score", redisGame.getScore());
+            			result.put("runningTime", redisGame.getClearTime());
+            			
+            			//방 전체 메시지에 보냄
+                		for (String u : roomMap.get(roomId).getUserList()) 
+                			sendMessage(userMap.get(u).getSession(), makeJson(result));
+                		
+                		roomMap.get(roomId).setGaming(null);
+            			
+            		}
+            		
+            		//게임 진행중일시
+            		else {
+
+    	        		result.put("gaming", true);
+    	        		result.put("time", redisGame.getRemainTime());
+    	        			
+    	        		//정답이 맞았나 체크
+    	        		if(answerCheck) {
+    	        				
+    	        			result.put("answerCheck", true);
+    	        			result.put("songUrl", redisGame.getUri());
+    	        			result.put("score", redisGame.getScore());
+    	        			
+    	        			//!유저ID에서 이름 전달로 바뀔 수 있음
+    	        			result.put("userId", session.getId());
+    	        			
+    	        			
+    	                	for (String u : roomMap.get(roomId).getUserList()) 
+    	                		sendMessage(userMap.get(u).getSession(), makeJson(result));
+    	                	
+    	                	
+    	        			}
+    	      
+    	        			//정답이 틀렸을경우 힌드틑 함께 제공해줘야하나 체크
+    	        			result.put("answerCheck", false);
+    	        			result.put("songUrl", redisGame.getUri());
+    	        			result.put("score", redisGame.getScore());
+    	        				
+    	            		if(gameService.timeHintCheck(redisGame)) {	
+    	            			if(redisGame.isSongHintCheck())
+    	            				result.put("songHint", redisGame.getSongHint());
+    	            			else
+    	            				result.put("songHint", "");
+    	            			if(redisGame.isSingerHinCheckt())
+    	            				result.put("singerHint", redisGame.getSingerHint());
+    	            			else
+    	            				result.put("singerHint", "");
+    	            		}
+    	            		else {
+    	                    	result.put("songHint", "");
+    	                    	result.put("singerHint", "");		
+    	            		}
+                		
+            			
+            				
+            		}     		
+
+            	}    
+            	
+            	//클라이언트가 현재 진행상황 요청할때
+            	else if(obj.get("roomStatus").equals("progress")) {
+            		String roomId = (String) obj.get("roomId");
+            		MultiGaming redisGame = gameMap.get(roomId);
+            		
+            	
         			result.put("score", redisGame.getScore());
-        			result.put("runningTime", redisGame.getClearTime());
+        			result.put("questionCount", redisGame.getQuestionCount());
+        			result.put("time", redisGame.getRemainTime());
         			
-        			//방 전체 메시지에 보냄
-            		for (String u : roomMap.get(roomId).getUserList()) 
-            			sendMessage(userMap.get(u).getSession(), makeJson(result));
-            		
-        			gameMap.put(roomId,null);
+                	for (String u : roomMap.get(roomId).getUserList()) 
+                		sendMessage(userMap.get(u).getSession(), makeJson(result));
         			
-        		}
+            	}
         		
-        		//게임 진행중일시
-        		else {
-        			System.out.println("게임 진행");
-	        		result.put("gaming", true);
-	        		result.put("time", redisGame.getRemainTime());
-	        			
-	        		//정답이 맞았나 체크
-	        		if(answerCheck) {
-	        				
-	        			result.put("answerCheck", true);
-	        			result.put("songUrl", redisGame.getUri());
-	        			result.put("score", redisGame.getScore());
-	        			
-	        			//!유저ID에서 이름 전달로 바뀔 수 있음
-	        			result.put("userId", session.getId());
-	        			
-	        			
-	                	for (String u : roomMap.get(roomId).getUserList()) 
-	                		sendMessage(userMap.get(u).getSession(), makeJson(result));
-	                	
-	                	
-	        			}
-	      
-	        			//정답이 틀렸을경우 힌드틑 함께 제공해줘야하나 체크
-	        			result.put("answerCheck", false);
-	        			result.put("songUrl", redisGame.getUri());
-	        			result.put("score", redisGame.getScore());
-	        				
-	            		if(gameService.timeHintCheck(redisGame)) {	
-	            			if(redisGame.isSongHintCheck())
-	            				result.put("songHint", redisGame.getSongHint());
-	            			else
-	            				result.put("songHint", "");
-	            			if(redisGame.isSingerHinCheckt())
-	            				result.put("singerHint", redisGame.getSingerHint());
-	            			else
-	            				result.put("singerHint", "");
-	            		}
-	            		else {
-	                    	result.put("songHint", "");
-	                    	result.put("singerHint", "");		
-	            		}
-            		
-        			
-        				
-        		}     		
-
-        	}    
-        	
-        	//클라이언트가 현재 진행상황 요청할때
-        	else if(obj.get("roomStatus").equals("progress")) {
-        		String roomId = (String) obj.get("roomId");
-        		MultiGaming redisGame = gameMap.get(roomId);
-        		
-        	
-    			result.put("score", redisGame.getScore());
-    			result.put("questionCount", redisGame.getQuestionCount());
-    			result.put("time", redisGame.getRemainTime());
-    			
-            	for (String u : roomMap.get(roomId).getUserList()) 
-            		sendMessage(userMap.get(u).getSession(), makeJson(result));
-    			
         	}
-        	
-        	
+        		
         	
         }
 
