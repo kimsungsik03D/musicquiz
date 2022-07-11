@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react'
 //
 // const WebSocketContext = React.createContext(null)
 // export {WebSocketContext}
-
+//TODO : 소켓통신을 위한 로직이기때문에 개발이 완료되면 해당 부분은 필요없는 로직임
 export default function SoketTest(props) {
     let ws = null
     console.log('123525!!')
@@ -26,7 +26,8 @@ export default function SoketTest(props) {
     }
 
     const sendMessage = () => {
-        var msg = {
+        var msg = {roomStatus:'create'}
+        /*var msg = {
             userName: 'message',
             toYear: 2000,
             fromYear: 2020,
@@ -35,14 +36,14 @@ export default function SoketTest(props) {
             songHint: true,
             singerHint: true,
             rankMod: true,
-        }
+        }*/
 
         props.props.send(JSON.stringify(msg))
-        props.props.onmessage = (evt) => {
-            console.log('onmessage1')
-            console.log(evt)
-            console.log(evt.data)
-        }
+        // props.props.onmessage = (evt) => {
+        //     console.log('onmessage1')
+        //     console.log(evt)
+        //     console.log(evt.data)
+        // }
     }
 
     const sendMessage2 = () => {

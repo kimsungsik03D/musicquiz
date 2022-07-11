@@ -1,0 +1,14 @@
+@import '~antd/dist/antd.css';
+
+.multimodetype{
+    display: flex;
+    justify-content: space-between;
+}
+.multimodetype > div {
+    display: inline-block;
+    width: 40%;
+    background-color: #50a3eb;
+    color: #FFFFFF;
+
+
+}
