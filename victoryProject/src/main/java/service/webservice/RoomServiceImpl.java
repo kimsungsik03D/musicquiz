@@ -33,7 +33,6 @@ public class RoomServiceImpl implements RoomService {
 		else if(room.getRoomOwner().equals(sessionId) ) {
 			if(room.getUserReady().size()== room.getUserList().size()-1) {
 			
-				room.setProgress(true);
 				return true;
 			}	
 			else
@@ -62,6 +61,7 @@ public class RoomServiceImpl implements RoomService {
 		
 		if(room.getUserList().contains(sessionId) ) {
 			room.getUserList().remove(sessionId);
+			room.getUserReady().remove(sessionId);
 			return true;
 		}	
 		else 

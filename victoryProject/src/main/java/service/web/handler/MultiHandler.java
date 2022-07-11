@@ -131,6 +131,44 @@ public class MultiHandler extends TextWebSocketHandler  {
         			}
         			
         		}
+        		//방퇴장
+        		else if(obj.get("roomStatus").equals("out")) {
+        			String roomId = (String) obj.get("roomId");
+        			if(roomMap.get(roomId).getUserList().contains(session.getId())) {
+        				
+        				roomService.userOut(roomMap.get(roomId), session.getId());
+        				userMap.get(session.getId()).setRoomId(null);
+        				
+        				if(roomMap.get(roomId).getUserList().size()>0) {
+        				
+                		result.put("result", true);
+                		result.put("userId", session.getId());  
+                		result.put("mesg", "다른 유저가 나갔습니다");
+                		
+        				for (String u : roomMap.get(roomId).getUserList()) 
+        					sendMessage(userMap.get(u).getSession(), makeJson(result));   
+        				
+        				if(roomMap.get(roomId).getRoomOwner().equals(session.getId())) {
+        					roomService.ownerSet(roomMap.get(roomId), roomMap.get(roomId).getUserList().get(0));
+                    		result.put("result", true);
+                    		result.put("userId", roomMap.get(roomId).getUserList().get(0));  
+                    		result.put("mesg", "새로운 방장이 되셨습니다");
+        					
+            				for (String u : roomMap.get(roomId).getUserList()) 
+            					sendMessage(userMap.get(u).getSession(), makeJson(result)); 
+        				}
+        				} // 방에 한명이라도 남아 있을경우
+        				else {
+            				roomMap.get(roomId).getUserList().clear();
+            				roomMap.replace(roomId, null);      					
+        					
+        				} //모든 인원이 사라진 방은 삭제함
+        				
+        				
+        				
+        			}
+        			
+        		}
         		//방삭제
         		else if(obj.get("roomStatus").equals("delete")) {
         			String roomId = (String) obj.get("roomId");
@@ -181,6 +219,8 @@ public class MultiHandler extends TextWebSocketHandler  {
                     			redisGame.getScore().put(u, 0); 
                     			sendMessage(userMap.get(u).getSession(), makeJson(result));
                     		}
+                    		
+                    		roomMap.get(roomId).setProgress(true);
 
                 		}
                 		else {
@@ -189,6 +229,7 @@ public class MultiHandler extends TextWebSocketHandler  {
                     		result.put("msg", "현재 DB 노래숫자가 요청하신 노래수보다 부족합니다");
                     		//gameMap.put(session.getId(),null);
                     		roomMap.get(roomId).setGaming(null);
+                    		
                     		
                     		for (String u : roomMap.get(roomId).getUserList()) 
                     			sendMessage(userMap.get(u).getSession(), makeJson(result));
@@ -290,10 +331,6 @@ public class MultiHandler extends TextWebSocketHandler  {
     	        			result.put("songUrl", redisGame.getUri());
     	        			result.put("score", redisGame.getScore());
     	        			
-
-    	        		    	    
-    	                	
-    	                	
     	        			}
     	        		else {
     	        			//정답이 틀렸을경우 힌드틑 함께 제공해줘야하나 체크
@@ -341,12 +378,14 @@ public class MultiHandler extends TextWebSocketHandler  {
         			
             	}
         		
+        	  
+        		
         	}
         		
         	
         }
 
-        sendMessage(session, makeJson(result));
+        //sendMessage(session, makeJson(result));
         
         }
         catch (NullPointerException e) {
@@ -424,7 +463,7 @@ public class MultiHandler extends TextWebSocketHandler  {
 			String json = mapper.writeValueAsString(data);
 			return new TextMessage(json) ;
 		} catch (JsonProcessingException e) {
-			System.out.println("json 에러");
+			
 			return null;
 		}
 	}

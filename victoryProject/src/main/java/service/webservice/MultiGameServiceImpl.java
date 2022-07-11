@@ -30,7 +30,7 @@ public class MultiGameServiceImpl implements MultiGameService{
 	Random random = new Random();
 	
 	//게임 한판당 시간
-	private final int roundTime = 30;
+	private final int ROUNDTIME = 30;
 	
 	
 	//!dto 추가 작업 해야함
@@ -39,12 +39,11 @@ public class MultiGameServiceImpl implements MultiGameService{
 		//게임 초기 설정해야하는 목록
 		int toYear = 1990;
 		int fromYear = 2021;
-			
 		MultiGaming redisGame = MultiGaming.builder()
-				.questionCount(3)
+				.questionCount(Integer.parseInt(String.valueOf(gameSet.get("questionCount"))))
 				.roomId(roomId)
-				.singerHintCheck(true)
-				.songHintCheck(false)
+				.singerHintCheck((boolean) gameSet.get("singerHint"))
+				.songHintCheck((boolean) gameSet.get("songHint"))
 				.toYear(toYear)
 				.fromYear(fromYear)
 				.build();
@@ -69,7 +68,7 @@ public class MultiGameServiceImpl implements MultiGameService{
 		if(timeOverCheck(redisGame)) {
 			
 			//시간 오버일경우 30초 지정
-			redisGame.setClearTime(redisGame.getClearTime()+ roundTime*1000);
+			redisGame.setClearTime(redisGame.getClearTime()+ ROUNDTIME*1000);
 			
 			redisGame.setQuestionCount(redisGame.getQuestionCount()-1);
 			//시간오버일때 다음라운드 진행 여부 체크
@@ -78,7 +77,7 @@ public class MultiGameServiceImpl implements MultiGameService{
 				return false;
 			}
 			sendUri(redisGame);
-			redisGame.setRemainTime(roundTime);
+			redisGame.setRemainTime(ROUNDTIME);
 			redisGame.setStarRoundTime(LocalDateTime.now());
 			
 		}
@@ -99,7 +98,7 @@ public class MultiGameServiceImpl implements MultiGameService{
 				return false;
 			}else {
 				sendUri(redisGame);
-				redisGame.setRemainTime(roundTime);
+				redisGame.setRemainTime(ROUNDTIME);
 				redisGame.setStarRoundTime(LocalDateTime.now());
 				
 			}
@@ -128,7 +127,7 @@ public class MultiGameServiceImpl implements MultiGameService{
 		if(redisGame.getQuestionCount() >songList.size() ) {
 		//questionCount 보다 적은지 확인해야함
 			redisGame.setSongList(songList);
-			System.out.println(songList.size());
+			//System.out.println(songList.size());
 			
 		}
 		else
@@ -184,7 +183,7 @@ public class MultiGameServiceImpl implements MultiGameService{
 		Duration duration = Duration.between(startTime, currentTime);
 
 		
-		redisGame.setRemainTime(roundTime - duration.getSeconds());
+		redisGame.setRemainTime(ROUNDTIME - duration.getSeconds());
 		
 		if(duration.getSeconds() > 30) {
 			return true;
@@ -206,7 +205,7 @@ public class MultiGameServiceImpl implements MultiGameService{
 		
 		
 		
-		if( duration.getSeconds() > roundTime/2 ) 
+		if( duration.getSeconds() > ROUNDTIME/2 ) 
 			return true ;
 		else
 			return false ;
