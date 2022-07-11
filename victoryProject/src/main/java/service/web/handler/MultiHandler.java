@@ -7,6 +7,7 @@ import java.util.List;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -18,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import service.domain.jpa.Room;
 import service.domain.jpa.User;
+import service.domain.jpa.log.RoomRepository;
 import service.web.Gaming;
 import service.web.MultiGaming;
 import service.webservice.GameService;
@@ -42,6 +44,10 @@ public class MultiHandler extends TextWebSocketHandler  {
     public static MultiGameService gameService;
     public static RoomService roomService;
     
+    
+	@Autowired
+	public RoomRepository roomRepo;
+	
 	/*client가 서버에게 메시지 보냄*/
     
     //멀티노드로 만든다면 redis에서 room 정보 리스트 수 를 저장하도록 해야함
@@ -159,9 +165,10 @@ public class MultiHandler extends TextWebSocketHandler  {
         				}
         				} // 방에 한명이라도 남아 있을경우
         				else {
+        					roomRepo.delete(roomMap.get(roomId));
             				roomMap.get(roomId).getUserList().clear();
             				roomMap.replace(roomId, null);      					
-        					
+            				
         				} //모든 인원이 사라진 방은 삭제함
         				
         				
@@ -186,6 +193,7 @@ public class MultiHandler extends TextWebSocketHandler  {
         				}
         				roomMap.get(roomId).getUserList().clear();
         				roomMap.replace(roomId, null);
+        				roomRepo.delete(roomMap.get(roomId));
         				
       					
         			}
@@ -221,6 +229,7 @@ public class MultiHandler extends TextWebSocketHandler  {
                     		}
                     		
                     		roomMap.get(roomId).setProgress(true);
+                    		roomRepo.save(roomMap.get(roomId));
 
                 		}
                 		else {
@@ -267,26 +276,16 @@ public class MultiHandler extends TextWebSocketHandler  {
             		}
             		
             		       			
-        		}
+        		} //방 이름 변경
         		else if(obj.get("roomStatus").equals("setting")) {
         			String roomId = (String) obj.get("roomId");
         			
         			//방장일때만 세팅 가능함
         			if(roomMap.get(roomId).getRoomOwner().equals(session.getId())) {
-        				roomMap.get(roomId).setGaming(gameService.gameStart(session.getId(), obj));
-        				
-                		int songCountCheck = gameService.songCountCheck(roomMap.get(roomId).getGaming());
-                		//요청 노래숫자가 많을시 에러 메시지 출력 -1은 게임 정상적으로 진행한다임
-                		if(songCountCheck!=-1 ) {
-                    		result.put("stat", false);
-                    		result.put("songCount", songCountCheck);
-                    		result.put("msg", "현재 DB 노래숫자가 요청하신 노래수보다 부족합니다");
-                    		
-
-                    		for (String u : roomMap.get(roomId).getUserList()) 
-                    			sendMessage(userMap.get(u).getSession(), makeJson(result));
-
-                		}        			
+        				roomService.titleSet(roomMap.get(roomId), (String) obj.get("title"));
+        				roomMap.get(roomId);
+        				roomRepo.save(roomMap.get(roomId));
+                		     			
         				
         			}
         				
@@ -313,6 +312,8 @@ public class MultiHandler extends TextWebSocketHandler  {
                 			sendMessage(userMap.get(u).getSession(), makeJson(result));
                 		
                 		roomMap.get(roomId).setGaming(null);
+                		roomMap.get(roomId).setProgress(false);
+                		roomRepo.save(roomMap.get(roomId));
             			
             		}
             		

@@ -1,13 +1,19 @@
 package service.webservice;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
 import service.domain.jpa.Room;
+import service.domain.jpa.log.RoomRepository;
 import service.web.MultiGaming;
 
 @Service
 public class RoomServiceImpl implements RoomService {
 	
+
+	@Autowired
+	public RoomRepository roomRepo;
 	
 	//방생성
 	public Room roomCreate(String roomId) {
@@ -15,6 +21,9 @@ public class RoomServiceImpl implements RoomService {
 		Room room = new Room();
 		room.setRoomId(roomId);
 		room.setGaming(new MultiGaming());
+		room.setRoomTitle(roomId);
+		roomRepo.save(room);
+		
 		return room;
 	}
 	
@@ -49,6 +58,8 @@ public class RoomServiceImpl implements RoomService {
 		
 		if(!room.getUserList().contains(sessionId) ) {
 			room.getUserList().add(sessionId);
+			roomRepo.save(room);
+			
 			return true;
 		}	
 		else 
@@ -62,6 +73,7 @@ public class RoomServiceImpl implements RoomService {
 		if(room.getUserList().contains(sessionId) ) {
 			room.getUserList().remove(sessionId);
 			room.getUserReady().remove(sessionId);
+			roomRepo.save(room);
 			return true;
 		}	
 		else 
@@ -76,7 +88,13 @@ public class RoomServiceImpl implements RoomService {
 			return true;
 	}
 	
+	
+	//방제목 설정
+	public boolean titleSet(Room room, String title) {
 
+		room.setRoomTitle(title);
+		return true;
+}
 		
 
 

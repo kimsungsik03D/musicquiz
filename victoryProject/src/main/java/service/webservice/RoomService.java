@@ -8,4 +8,5 @@ public interface RoomService {
 	public boolean userOut(Room room, String session);
 	public Room roomCreate(String roomId);
 	public boolean ownerSet(Room room, String sessionId);
+	public boolean titleSet(Room room, String title);
 }
