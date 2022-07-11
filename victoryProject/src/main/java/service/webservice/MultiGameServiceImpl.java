@@ -1,5 +1,8 @@
-package service.webservice;
+/*
+ * 멀티게임 버전 게임 서비스 구현
+ * */
 
+package service.webservice;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -9,20 +12,15 @@ import java.util.Random;
 
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.socket.WebSocketSession;
 
-import service.domain.jpa.Ranking;
 import service.domain.jpa.RankingRepository;
 import service.domain.jpa.Song;
 import service.domain.jpa.SongRepository;
-import service.web.Gaming;
+import service.web.MultiGaming;
 
 @Service
-public class GameServiceImpl implements GameService {
-	
+public class MultiGameServiceImpl implements MultiGameService{
 	@Autowired
 	public SongRepository songRepo ;
 	
@@ -31,76 +29,46 @@ public class GameServiceImpl implements GameService {
 	
 	Random random = new Random();
 	
-	private final int roundTime = 30;
+	//게임 한판당 시간
+	private final int ROUNDTIME = 30;
+	
 	
 	//!dto 추가 작업 해야함
-	public Gaming gameStart(String sessionId, JSONObject gameSet) {
-
-
+	public MultiGaming gameStart(String roomId, JSONObject gameSet) {
+	
+		//게임 초기 설정해야하는 목록
+		int toYear = 1990;
+		int fromYear = 2021;
+		MultiGaming redisGame = MultiGaming.builder()
+				.questionCount(Integer.parseInt(String.valueOf(gameSet.get("questionCount"))))
+				.roomId(roomId)
+				.singerHintCheck((boolean) gameSet.get("singerHint"))
+				.songHintCheck((boolean) gameSet.get("songHint"))
+				.toYear(toYear)
+				.fromYear(fromYear)
+				.build();
 		
-		if((boolean) gameSet.get("rankMod")) {
-			
-			//게임 초기 설정해야하는 목록
-			int toYear = 1990;
-			int fromYear = 2021;
-			
-			Gaming redisGame = Gaming.builder()
-					.questionCount(5)
-					.sessionId(sessionId)
-					.singerHintCheck(true)
-					.songHintCheck(false)
-					.rankMod((boolean) gameSet.get("rankMod"))
-					.username((String) gameSet.get("userName"))
-					.toYear(toYear)
-					.fromYear(fromYear)
-					.build();
-					redisGame.setStarRoundTime(LocalDateTime.now());
-					//노래 리스트 저장 함수
-					songRandom(redisGame);
-					sendUri(redisGame);
+				redisGame.setStarRoundTime(LocalDateTime.now());
+				//노래 리스트 저장 함수
+				songRandom(redisGame);
+				sendUri(redisGame);
 					
-					return redisGame;
+				return redisGame;
 			
-			
-		}else {
-			
-			//게임 초기 설정해야하는 목록
-			int toYear = Integer.parseInt(String.valueOf(gameSet.get("toYear")));
-			int fromYear = Integer.parseInt(String.valueOf(gameSet.get("fromYear")));
-			
-			Gaming redisGame = Gaming.builder()
-					.questionCount(Integer.parseInt(String.valueOf(gameSet.get("questionCount"))))
-					.sessionId(sessionId)
-					.singerHintCheck((boolean) gameSet.get("singerHint"))
-					.songHintCheck((boolean) gameSet.get("songHint"))
-					.rankMod((boolean) gameSet.get("rankMod"))
-					.username((String) gameSet.get("userName"))
-					.toYear(toYear)
-					.fromYear(fromYear)
-					.build();
-					redisGame.setStarRoundTime(LocalDateTime.now());
-					//노래 리스트 저장 함수
-					songRandom(redisGame);
-					sendUri(redisGame);
-					
-					return redisGame;
-			
-		}
-		
-		
+
 	}
 	
 	//답안 받았을때의 처리
 	//한판이 30초라고 가정, 힌트는 절반이상 흘렀을때 제공
 	//!리턴 타입 json으로 변경
 	//게임 end일시 false , 진행해야하면 true
-	public boolean gameCtrl(String answer, Gaming redisGame) {
+	public boolean gameCtrl(String userId, String answer, MultiGaming redisGame) {
 		
 		//시간 오버인지 체크
 		if(timeOverCheck(redisGame)) {
 			
 			//시간 오버일경우 30초 지정
-			redisGame.setClearTime(redisGame.getClearTime()+ roundTime*1000);
+			redisGame.setClearTime(redisGame.getClearTime()+ ROUNDTIME*1000);
 			
 			redisGame.setQuestionCount(redisGame.getQuestionCount()-1);
 			//시간오버일때 다음라운드 진행 여부 체크
@@ -109,7 +77,7 @@ public class GameServiceImpl implements GameService {
 				return false;
 			}
 			sendUri(redisGame);
-			redisGame.setRemainTime(roundTime);
+			redisGame.setRemainTime(ROUNDTIME);
 			redisGame.setStarRoundTime(LocalDateTime.now());
 			
 		}
@@ -120,7 +88,7 @@ public class GameServiceImpl implements GameService {
 			//System.out.println("정답 맞음");
 			//round 클리어 타임 저장
 			saveClearTime(redisGame);
-			redisGame.setScore(redisGame.getScore()+1);
+			redisGame.getScore().replace(userId, (redisGame.getScore().get(userId)+1));
 			redisGame.setQuestionCount(redisGame.getQuestionCount()-1);
 			//System.out.println("남은 문제수:"+ redisGame.getQuestionCount());
 			
@@ -130,7 +98,7 @@ public class GameServiceImpl implements GameService {
 				return false;
 			}else {
 				sendUri(redisGame);
-				redisGame.setRemainTime(roundTime);
+				redisGame.setRemainTime(ROUNDTIME);
 				redisGame.setStarRoundTime(LocalDateTime.now());
 				
 			}
@@ -139,14 +107,11 @@ public class GameServiceImpl implements GameService {
 		}
 		//정답 틀리고 힌트를 줘야하는 시간일시
 		else {
-			//System.out.println("정답 틀림");
-			//System.out.println(redisGame.getAnswerName());
 			//설계 변경으로 게임 진행 절반이상 지났을시 힌트 제공은 핸들러에서 obj에 추가하는것으로 변경함
 			
-			
+		
 		}
 			
-
 		} //# 시간 오버인지 체크 if문
 		
 		
@@ -154,7 +119,7 @@ public class GameServiceImpl implements GameService {
 	}
 	
 	//게임 객체에 플레이 갯수에 맞추어 조건에 맞는 노래 id 리스트 저장하는함수
-	private void songRandom(Gaming redisGame) {
+	private void songRandom(MultiGaming redisGame) {
 
 		List<Integer> songList = songRepo.getSongId(redisGame.getToYear(), redisGame.getFromYear());
 		
@@ -162,7 +127,7 @@ public class GameServiceImpl implements GameService {
 		if(redisGame.getQuestionCount() >songList.size() ) {
 		//questionCount 보다 적은지 확인해야함
 			redisGame.setSongList(songList);
-			
+			//System.out.println(songList.size());
 			
 		}
 		else
@@ -171,7 +136,7 @@ public class GameServiceImpl implements GameService {
 	}
 	
 	
-	public int songCountCheck(Gaming redisGame) {
+	public int songCountCheck(MultiGaming redisGame) {
 		
 		List<Integer> songList = songRepo.getSongId(redisGame.getToYear(), redisGame.getFromYear());
 		
@@ -183,7 +148,7 @@ public class GameServiceImpl implements GameService {
 	}
 	
 	//노래 uri 제공할때 랜덤으로 id에맞는 편집본 하나를 뽑아서 제공
-	private void sendUri(Gaming redisGame) {
+	private void sendUri(MultiGaming redisGame) {
 		
 		int songNum = random.nextInt(3)+1 ;
 		Song song = songRepo.getSongInfo(redisGame.getSongList().get(0), songNum).get();
@@ -201,7 +166,7 @@ public class GameServiceImpl implements GameService {
 	}
 	
 	//게임 끝내야 되는지 검증 true면 게임 End, flase면 아직 진행중
-	private boolean gameEndCheck(Gaming redisGame) {
+	private boolean gameEndCheck(MultiGaming redisGame) {
 		if(redisGame.getQuestionCount() < 1) 
 			return true ;
 		else
@@ -210,7 +175,7 @@ public class GameServiceImpl implements GameService {
 	}
 	
 	// 게임 남은 시간초 비교 true면 시간초 over되어 round 줄임, false면 아직 라운드 진행중
-	private boolean timeOverCheck(Gaming redisGame) {
+	private boolean timeOverCheck(MultiGaming redisGame) {
 		LocalDateTime startTime =redisGame.getStarRoundTime();
 		
 		LocalDateTime currentTime = LocalDateTime.now();
@@ -218,8 +183,7 @@ public class GameServiceImpl implements GameService {
 		Duration duration = Duration.between(startTime, currentTime);
 
 		
-		
-		redisGame.setRemainTime(roundTime - duration.getSeconds());
+		redisGame.setRemainTime(ROUNDTIME - duration.getSeconds());
 		
 		if(duration.getSeconds() > 30) {
 			return true;
@@ -230,7 +194,7 @@ public class GameServiceImpl implements GameService {
 	
 	}
 	// 게임 남은 시간초 비교 true면 Hint제공, false면 Hint 제공 안됨
-	public boolean timeHintCheck(Gaming redisGame) {
+	public boolean timeHintCheck(MultiGaming redisGame) {
 		
 
 		LocalDateTime startTime =redisGame.getStarRoundTime();
@@ -241,14 +205,14 @@ public class GameServiceImpl implements GameService {
 		
 		
 		
-		if( duration.getSeconds() > roundTime/2 ) 
+		if( duration.getSeconds() > ROUNDTIME/2 ) 
 			return true ;
 		else
 			return false ;
 	
 	}
 	// 정답 맞았나 체크 맞으면 true, 틀리면 false
-	public boolean answerCheck(String answer, Gaming redisGame) {
+	public boolean answerCheck(String answer, MultiGaming redisGame) {
 		
 	
 		if(answer.replace(" ", "").toLowerCase().equals(redisGame.getAnswerName().replace(" ", "").toLowerCase()))
@@ -259,7 +223,7 @@ public class GameServiceImpl implements GameService {
 		
 	}
 	//Round 끝날때마다 클리어 타임이 얼마나 걸렸나 확인
-	private void saveClearTime(Gaming redisGame) {
+	private void saveClearTime(MultiGaming redisGame) {
 		
 		LocalDateTime startTime =redisGame.getStarRoundTime();
 		
@@ -274,38 +238,6 @@ public class GameServiceImpl implements GameService {
 		
 		redisGame.setClearTime(redisGame.getClearTime() + saveTime + saveSecondTime);
 		//System.out.println("savedTime"+redisGame.getClearTime());
-		
-	}
-	
-	
-	//rank 정보 Db에 저장
-	public void rankSave(Gaming redisGame, WebSocketSession session) {
-		
-		rankRepo.save(
-				Ranking.builder()
-				.session(session.toString())
-				.username(redisGame.getUsername())
-				.score(redisGame.getScore())
-				.cleartime(redisGame.getClearTime())
-				.build()
-				);
-		
-	}
-	
-	//rankList 화면에 출력
-	public ResponseEntity<JSONObject> getRankList() {
-    	JSONObject resultObj = new JSONObject();  
-    	try {
-    		
-    		resultObj.put("result","true");
-    		resultObj.put("rankList", rankRepo.findRankList());
-    		return new ResponseEntity<JSONObject>(resultObj, HttpStatus.ACCEPTED);
-    	}
-    	catch (Exception e) {
-    		resultObj.put("result","false");
-    		resultObj.put("reason",e);
-    		return new ResponseEntity<JSONObject>(resultObj, HttpStatus.ACCEPTED);
-    	}
 		
 	}
 	

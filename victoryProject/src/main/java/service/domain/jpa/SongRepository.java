@@ -14,4 +14,5 @@ public interface SongRepository extends JpaRepository<Song, Long> {
 	
 	@Query(value="SELECT * FROM song s WHERE song_num =?1 AND file_num =?2", nativeQuery = true)
 	Optional<Song> getSongInfo(int songNum, int random);
+	
 }

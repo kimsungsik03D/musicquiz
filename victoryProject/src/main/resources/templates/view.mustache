@@ -28,7 +28,7 @@ var webSocket;
 function webSocketInit()
 {
     webSocket = new WebSocket("ws://localhost:8088/websocket");
-    //webSocket = new WebSocket("ws://3.35.55.132:8081/websocket");
+    //webSocket = new WebSocket("ws://13.125.191.54:8088/websocket");
 	webSocket.onopen = function(event) { socketOpen(event);};
 	webSocket.onclose = function(event) { socketClose(event);};
 	webSocket.onmessage = function(event) { socketMessage(event);};
@@ -56,14 +56,14 @@ function webSocketInit()
   		
      // 메시지 포맷
      var msg = {
-     	"userName" : "message",
+     	"userName" : "rank",
         "toYear" : 2000,
         "fromYear" : 2020,
-        "questionCount" :2 ,
+        "questionCount" :100 ,
         "modtype" :true,
         "songHint" : true,
         "singerHint" : true,
-        "rankMod" : true
+        "rankMod" : false
  
      }
      
@@ -105,9 +105,6 @@ function webSocketInit()
   }
   
 
-  
- 
-  
   //웹소켓 에러
   function socketError(event){
   	alert("에러가 발생하였습니다.");

@@ -20,6 +20,8 @@ import service.web.Gaming;
 import service.webservice.GameService;
 import service.webservice.UserService;
 
+import java.lang.NullPointerException;
+
 @Component
 public class SoloHandler extends TextWebSocketHandler  {
 
@@ -33,9 +35,14 @@ public class SoloHandler extends TextWebSocketHandler  {
     public static GameService gameService;
     
 	/*client가 서버에게 메시지 보냄*/
+    
+  
+
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        String payload = message.getPayload();
+    	try {
+    	
+    	String payload = message.getPayload();
        
         JSONObject obj = jsonToObjectParser(payload);
         HashMap result = new HashMap();
@@ -45,27 +52,49 @@ public class SoloHandler extends TextWebSocketHandler  {
         	//회원정보 추가일시
         	if(obj.get("userName") != null) {
         		gameMap.put(session.getId(), gameService.gameStart(session.getId(), obj));
+	
+        		Gaming redisGame = gameMap.get(session.getId());
         		
-        		result.put("gaming", true);
-        		result.put("songHint", "");
-        		result.put("singerHint", "");
-        		result.put("songUrl", "");
-        		
+        		int songCountCheck = gameService.songCountCheck(redisGame);
+        		//요청 노래숫자가 많을시 에러 메시지 출력 -1은 게임 정상적으로 진행한다임
+        		if(songCountCheck==-1 ) {
+            		result.put("gaming", true);
+            		result.put("songHint", "");
+            		result.put("singerHint", "");
+            		result.put("songUrl", redisGame.getUri());
+            		result.put("time", 30);
+        		}
+        		else {
+            		result.put("stat", false);
+            		result.put("songCount", songCountCheck);
+            		result.put("msg", "현재 DB 노래숫자가 요청하신 노래수보다 부족합니다");
+            		gameMap.put(session.getId(),null);
+        		}
+
 
         	}
         		
         	else {
         		Gaming redisGame = gameMap.get(session.getId());
+        		boolean answerCheck = gameService.answerCheck((String) obj.get("answer"), redisGame);
         		boolean endCheck = gameService.gameCtrl((String) obj.get("answer"), redisGame);
         		
         		//end면 게임 끝
         		if(!endCheck) {
-        			System.out.println("엔드임");
+        			//System.out.println("엔드임");
+        			
+        			if(redisGame.isRankMod()) {
+        				gameService.rankSave(redisGame, session);
+        			}
+        			
         			
         			result.put("gaming", false);
         			result.put("score", redisGame.getScore());
         			result.put("runningTime", redisGame.getClearTime());
         			sendMessage(session, makeJson(result));
+        			
+        			gameMap.put(session.getId(),null);
+        			
         		}
         		
         		//게임 진행중일시
@@ -75,29 +104,34 @@ public class SoloHandler extends TextWebSocketHandler  {
         			result.put("time", redisGame.getRemainTime());
         			
         			//정답이 맞았나 체크
-        			if(gameService.answerCheck((String) obj.get("answer"), redisGame)) {
+        			if(answerCheck) {
         				result.put("answerCheck", true);
         				result.put("songUrl", redisGame.getUri());
         				result.put("score", redisGame.getScore());
+        				sendMessage(session, makeJson(result));
         			}
-        			else {
-        				//정답이 틀렸을경우 힌드틑 함께 제공해줘야하나 체크
-        				result.put("answerCheck", false);
-        				result.put("songUrl", redisGame.getUri());
-        				result.put("score", redisGame.getScore());
+      
+        			//정답이 틀렸을경우 힌드틑 함께 제공해줘야하나 체크
+        			result.put("answerCheck", false);
+        			result.put("songUrl", redisGame.getUri());
+        			result.put("score", redisGame.getScore());
         				
-            			if(gameService.timeHintCheck(redisGame)) {	
-                    		result.put("songHint", redisGame.getSongHint());
-                    		result.put("singerHint", redisGame.getSingerHint());
-            			}
-            			else {
-                    		result.put("songHint", "");
-                    		result.put("singerHint", "");
+            		if(gameService.timeHintCheck(redisGame)) {	
+            			if(redisGame.isSongHintCheck())
+            				result.put("songHint", redisGame.getSongHint());
+            			else
+            				result.put("songHint", "");
+            			if(redisGame.isSingerHinCheckt())
+            				result.put("singerHint", redisGame.getSingerHint());
+            			else
+            				result.put("singerHint", "");
+            		}
+            		else {
+                    	result.put("songHint", "");
+                    	result.put("singerHint", "");
             				
-            			}
+            		}
         				
-        			}
-        			
         		}
 
         	}
@@ -105,7 +139,14 @@ public class SoloHandler extends TextWebSocketHandler  {
         }
         sendMessage(session, makeJson(result));
         
+        }
+        catch (NullPointerException e) {
+        	
+        }
+        
+        
      }
+
 
     /* Client가 접속 시 호출되는 메서드 */
     @Override
