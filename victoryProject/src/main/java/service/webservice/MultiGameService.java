@@ -14,4 +14,6 @@ public interface MultiGameService {
 	 boolean answerCheck(String answer, MultiGaming redisGame);
 	 
 	 int songCountCheck(MultiGaming redisGame);
+	 
+	 ResponseEntity<JSONObject> getRoomList() ;
 }

@@ -5,6 +5,9 @@ package service.domain.jpa;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,10 +19,11 @@ import service.web.MultiGaming;
  * 
  * 
  * */
-
+@RedisHash(value="game", timeToLive =18000)
 @Getter
 @Setter
 public class Room {
+	
 
 	//방에 들어온 유저 수다. 
 	@Setter(AccessLevel.NONE)
@@ -34,6 +38,7 @@ public class Room {
 	List<String> userRestart = new ArrayList<String>();
 	
 	//방 아이디 정보
+	@Id
 	private String roomId ;
 	
 	//방장 아이디 정보
@@ -42,12 +47,14 @@ public class Room {
 	//게이밍 객체 정보
 	private MultiGaming gaming ;
 	
+	private String roomTitle;
+	
 	
 	//웹 객체가 게이밍 객체 연산을 처리했나 확인 (첫번째 유저를 통해 게이밍 연산을 진행했다면 true로 변경됨, 다른 유저 차례에서는 gaming 연산 안하고 패스후 false로 바뀜)
 	private boolean gamingCheck= false;
 	
 	//방 객체가 게임중인지 확인
-	private boolean progress ;
+	private boolean progress = false;
 	
 
 	//강퇴 리스트

@@ -6,18 +6,24 @@ package service.webservice;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import service.domain.jpa.RankingRepository;
+import service.domain.jpa.Room;
 import service.domain.jpa.Song;
 import service.domain.jpa.SongRepository;
+import service.domain.jpa.log.RoomRepository;
 import service.web.MultiGaming;
+import service.web.dto.RoomDto;
 
 @Service
 public class MultiGameServiceImpl implements MultiGameService{
@@ -25,7 +31,7 @@ public class MultiGameServiceImpl implements MultiGameService{
 	public SongRepository songRepo ;
 	
 	@Autowired
-	public RankingRepository rankRepo;
+	public RoomRepository roomRepo;
 	
 	Random random = new Random();
 	
@@ -241,5 +247,38 @@ public class MultiGameServiceImpl implements MultiGameService{
 		
 	}
 	
-	
+	//현재 생성된 방 목록들의 상태 보여줌
+	public ResponseEntity<JSONObject> getRoomList() {
+    	JSONObject resultObj = new JSONObject();  
+    	
+    	Iterator<Room> itr =  roomRepo.findAll().iterator();
+    	List<RoomDto> roomList = new ArrayList<RoomDto>();
+    	
+    	
+    	while(itr.hasNext()) {
+    		Room room = itr.next() ;
+
+    		if(room !=null && room.getUserList().size() > 0)
+    			roomList.add(RoomDto.builder()
+    				.roomId(room.getRoomId())
+    				.startCheck(room.isProgress())
+    				.roomTitle(room.getRoomTitle())
+    				.userList(room.getUserList())
+    				.build()) ;
+    		
+    	}
+
+    	
+    	try {
+    		resultObj.put("result","true");
+    		resultObj.put("roomList", roomList);
+    		return new ResponseEntity<JSONObject>(resultObj, HttpStatus.ACCEPTED);
+    	}
+    	catch (Exception e) {
+    		resultObj.put("result","false");
+    		resultObj.put("reason",e);
+    		return new ResponseEntity<JSONObject>(resultObj, HttpStatus.ACCEPTED);
+    	}
+		
+	}
 }
