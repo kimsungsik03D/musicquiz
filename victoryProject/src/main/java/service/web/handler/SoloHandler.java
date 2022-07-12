@@ -35,8 +35,7 @@ public class SoloHandler extends TextWebSocketHandler  {
     public static GameService gameService;
     
 	/*client가 서버에게 메시지 보냄*/
-    
-  
+
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
@@ -165,15 +164,7 @@ public class SoloHandler extends TextWebSocketHandler  {
     }
     
     
-    /**
-     * 웹소켓 연결된 모든 클라이언트에 1초마다 
-		gaming 진행상태 및 블록 렌딩 정보 전달
-     */
-	
-	private void gameCheck() throws JsonProcessingException{
-		
-				
-	}
+
 	
 	//유저 들어오거나 나갈때 메시지 보냄
 	public HashMap sendUserInfo(WebSocketSession session, String mesg) {
@@ -181,7 +172,6 @@ public class SoloHandler extends TextWebSocketHandler  {
 		HashMap userHash = new HashMap();
 		if (session != null) {
 
-		
 		userHash.put("numOfUser", sessionList.size() );
 		userHash.put("userId", session.getId() );
 		

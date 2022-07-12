@@ -36,7 +36,6 @@ public class GameServiceImpl implements GameService {
 	//!dto 추가 작업 해야함
 	public Gaming gameStart(String sessionId, JSONObject gameSet) {
 
-
 		
 		if((boolean) gameSet.get("rankMod")) {
 			

@@ -142,20 +142,20 @@ public class MultiHandler extends TextWebSocketHandler  {
         			String roomId = (String) obj.get("roomId");
         			if(roomMap.get(roomId).getUserList().contains(session.getId())) {
         				
-        				roomService.userOut(roomMap.get(roomId), session.getId());
+        				int resultCheck = roomService.userOut(roomMap.get(roomId), session.getId());
         				userMap.get(session.getId()).setRoomId(null);
         				
         				if(roomMap.get(roomId).getUserList().size()>0) {
         				
-                		result.put("result", true);
-                		result.put("userId", session.getId());  
-                		result.put("mesg", "다른 유저가 나갔습니다");
-                		
-        				for (String u : roomMap.get(roomId).getUserList()) 
-        					sendMessage(userMap.get(u).getSession(), makeJson(result));   
+	                		result.put("result", true);
+	                		result.put("userId", session.getId());  
+	                		result.put("mesg", "다른 유저가 나갔습니다");
+	                		
+	        				for (String u : roomMap.get(roomId).getUserList()) 
+	        					sendMessage(userMap.get(u).getSession(), makeJson(result));   
         				
-        				if(roomMap.get(roomId).getRoomOwner().equals(session.getId())) {
-        					roomService.ownerSet(roomMap.get(roomId), roomMap.get(roomId).getUserList().get(0));
+        				if(resultCheck == 0) {
+        					//roomService.ownerSet(roomMap.get(roomId), roomMap.get(roomId).getUserList().get(0));
                     		result.put("result", true);
                     		result.put("userId", roomMap.get(roomId).getUserList().get(0));  
                     		result.put("mesg", "새로운 방장이 되셨습니다");
@@ -163,13 +163,13 @@ public class MultiHandler extends TextWebSocketHandler  {
             				for (String u : roomMap.get(roomId).getUserList()) 
             					sendMessage(userMap.get(u).getSession(), makeJson(result)); 
         				}
-        				} // 방에 한명이라도 남아 있을경우
+        				} // -> 방에 한명이라도 남아 있을경우
         				else {
         					roomRepo.delete(roomMap.get(roomId));
             				roomMap.get(roomId).getUserList().clear();
             				roomMap.replace(roomId, null);      					
             				
-        				} //모든 인원이 사라진 방은 삭제함
+        				} // -> 모든 인원이 사라진 방은 삭제함
         				
         				
         				
@@ -205,7 +205,7 @@ public class MultiHandler extends TextWebSocketHandler  {
 
             		//요청 노래숫자가 많을시 에러 메시지 출력 -1은 게임 정상적으로 진행한다임
             		
-            		//방장일때 start
+            		// -> 방장일때 start
             		if(roomMap.get(roomId).getRoomOwner().equals(session.getId()) && gameStart) {
                 		
         				roomMap.get(roomId).setGaming(gameService.gameStart(session.getId(), obj));
@@ -378,9 +378,7 @@ public class MultiHandler extends TextWebSocketHandler  {
                 		sendMessage(userMap.get(u).getSession(), makeJson(result));
         			
             	}
-        		
-        	  
-        		
+
         	}
         		
         	
@@ -416,45 +414,24 @@ public class MultiHandler extends TextWebSocketHandler  {
     	userService.addDisLog(session);
     	//세션 리스트에서 제외
     	sessionList.remove(session);
+    	HashMap result = new HashMap();
+    	
+    	String roomId = userMap.get(session.getId()).getRoomId() ;
+    	
+    	if(roomId != null) {
+    		roomService.userOut(roomMap.get(userMap.get(session.getId()).getRoomId()), session.getId());
+    		result.put("result", true);
+    		result.put("userId", session.getId());  
+    		result.put("mesg", "사용자의 세션 연결이 끊겼습니다");
+    		
+    		for (String u : roomMap.get(roomId).getUserList()) 
+    			sendMessage(userMap.get(u).getSession(), makeJson(result)); 
+    	}
+    	
+		userMap.remove(session.getId());
+
     }
-    
-    
-    /**
-     * 웹소켓 연결된 모든 클라이언트에 1초마다 
-		gaming 진행상태 및 블록 렌딩 정보 전달
-     */
-	private void gameCheck() throws JsonProcessingException{
-		
-				
-	}
-	
-	//유저 들어오거나 나갈때 메시지 보냄
-	public HashMap sendUserInfo(WebSocketSession session, String mesg) {
-		
-		HashMap userHash = new HashMap();
-		if (session != null) {
-
-		
-		userHash.put("numOfUser", sessionList.size() );
-		userHash.put("userId", session.getId() );
-		
-		}
-		return userHash ;
-		
-		
-	}
-
-	/*
-	//게임 진행 공통 파라미터 모음
-	public HashMap comParaMeter(WebSocketSession session) {
-
-	}
-
-	//게임진행 공통 파라미터 모음 (다른 한명에게 메시지랑 함께 보낼때 사용)
-	public HashMap comParaMeter(WebSocketSession session, String status, String mesg) {
-		
-
-	}*/
+   
 	
 	//현재 게임 상태 객체로 만들어서 반환
 	private TextMessage makeJson(HashMap data) {
@@ -469,6 +446,7 @@ public class MultiHandler extends TextWebSocketHandler  {
 		}
 	}
 	
+	//session 연결 상태 학인후 메시지 보냄
 	private void sendMessage(WebSocketSession session, TextMessage mesg) {
 		if (session != null) {
 			if(session.isOpen() && mesg !=null)
@@ -480,7 +458,8 @@ public class MultiHandler extends TextWebSocketHandler  {
 				}
 		}
 	}
-
+	//방 아이디 확인후 방에 들어가 있는 유저들에게 메시지 보냄 !안정성을 위해 session 연결 상태를 확인후 보내기로함
+	/*
 	private void sendMessage(String roomId, TextMessage mesg) {
 		if (roomMap.get(roomId) != null && mesg !=null) {
 			
@@ -488,13 +467,12 @@ public class MultiHandler extends TextWebSocketHandler  {
 				try {
 					userMap.get(userId).getSession().sendMessage(mesg);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				
 			}
 		}
-	}
+	}*/
 	
 	//jsoon 파싱 함수
 	private static JSONObject jsonToObjectParser(String jsonStr) {

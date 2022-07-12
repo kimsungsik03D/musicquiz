@@ -1,3 +1,7 @@
+/*
+ * Session 연결중 ip 추출을 위해 인터셉터 구현
+ * */
+
 package service.web.Intercepter;
 
 import java.util.Map;
