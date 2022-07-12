@@ -13,15 +13,12 @@ const MultiGameCreate = (props) => {
     const [answerData, setAnswerData] = useState([])
     const [gameState,setGamestet] = useState(false)
     const [input, setInput] = useState({
-        // userName: state.userName?state.userName:'' ,
         roomStatus: 'start',
         toYear: null,
         fromYear: null,
         questionCount: null,
         songHint: '',
         singerHint: '',
-        // rankMod: '',
-        // gameType: '',
         roomId : roomId
     })
     //화면에서 사용하기 위한 변수를 선언해 비구조화할당을 통해 해당 변수에 Input 값을 추출한다.
@@ -37,15 +34,10 @@ const MultiGameCreate = (props) => {
         roomOpen,
         gameType,
     } = input
-    //console.log('##########input, ', input);
-    // let ws = null
-    // ws = new WebSocket(`ws://13.125.191.54:8088/websocket`)
-    // ws = new WebSocket(`ws://13.125.191.54:8088/websocket`)
     props.props.onopen = (e) => {
         //console.log('multiGameCreact connected!!')
     }
     props.props.onmessage = (e) => {
-       // console.log('e.data', JSON.parse(e.data))
         let setid = location.usertype =='host'? (roomId ? roomId : JSON.parse(e.data).roomId) : location.roomid
         setRoomId(setid)
         setGamestet(JSON.parse(e.data).ready?true:false)
@@ -53,13 +45,10 @@ const MultiGameCreate = (props) => {
             ...input,
             roomId: setid,
         })
-        // console.log('e',JSON.parse(e.data))
-       // console.log('multiGameCreact onmessage!!')
         if(userId==null){
             setUserId(JSON.parse(e.data).userId)
         }
 
-        // console.log('userId :', userId);
     }
     // props.props.onclose = (e) => {
     //     console.log('onclose')
@@ -95,9 +84,7 @@ const MultiGameCreate = (props) => {
     }
 
     const onClickMessage = (e) => {
-        //console.log('input', input)
         if (location.usertype == 'host') {
-           // console.log('create Game start send usertype : Host');
             props.props.send(
                 JSON.stringify({
                     roomStatus: 'start',
@@ -112,7 +99,6 @@ const MultiGameCreate = (props) => {
             )
 
         } else {
-            //console.log('create Game start send usertype : guest');
             props.props.send(
               JSON.stringify({
                   roomStatus: 'start',
@@ -120,27 +106,8 @@ const MultiGameCreate = (props) => {
               }),
             )
         }
-        // if (input.gameType == false) {
-        //     setInput({
-        //         toYear: false,
-        //         fromYear: false,
-        //     })
-        // }
-
-        // var msg = {
-        //     "userName" : "message",
-        //     "toYear" : 2000,
-        //     "fromYear" : 2020,
-        //     "questionCount" :2 ,
-        //     "modtype" :true,
-        //     "songHint" : true,
-        //     "singerHint" : true,
-        //     "rankMod" : true
-        // }
-        // props.props.send(JSON.stringify(input))
     }
 
-   // console.log('input', input)
 
     const answerList = answerData.map((data, index) =>
         data ? <div key={index}>사용자 :{data} </div> : <div>""</div>,
@@ -163,7 +130,6 @@ const MultiGameCreate = (props) => {
             "rankMod" : true
 
         }*/
-        // props.props.send(JSON.stringify({ answer: answer }))
         setAnswerData((answerData) => [...answerData, answer])
         setAnswer('')
     }
@@ -174,7 +140,6 @@ const MultiGameCreate = (props) => {
         },[])
     const linkHandle = (event) =>{
         if (location.usertype == 'host') {
-          //  console.log('create Game start send usertype : Host');
             props.props.send(
               /*JSON.stringify({
                   roomStatus: 'start',
@@ -189,7 +154,6 @@ const MultiGameCreate = (props) => {
               JSON.stringify(input)
             )
         } else {
-          //  console.log('create Game start send usertype : guest');
             props.props.send(
               JSON.stringify({
                   roomStatus: 'start',
@@ -197,33 +161,11 @@ const MultiGameCreate = (props) => {
               }),
             )
         }
-        // props.props.onmessage = (e) => {
-            // console.log('e.data', JSON.parse(e.data))
-        //     // setRoomId(location.usertype =='host'? (roomId ? roomId : JSON.parse(e.data).roomId) : location.roomid)
-        //     console.log('e',e)
-        //     // console.log('multiGameCreact onmessage!!')
-        //     console.log("멀티 생성 onmessgfa",JSON.parse(e.data));
-        //
-        // }
 
-
-        // if(state){
-        //     event.preventDefault()
-        // }
         props.props.onmessage=(e)=>{
-            //console.log("onCLick onmessage");
-            // console.log('1',e.data)
-           // console.log('2',JSON.parse(e.data))
-            // setGamestet(JSON.parse(e.data).stat)
-            // state3 = JSON.parse(e.data).stat
             setGamestet(JSON.parse(e.data).ready?true:false)
-            // if(JSON.parse(e.data).stat){
-            // //
-            // //     event.preventDefault()
-            //     return true;
-            // }
-
         }
+
         if(!gameState){
         event.preventDefault()
         }
@@ -360,7 +302,7 @@ const MultiGameCreate = (props) => {
                 <div
                     className={'setting2'}
                     style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    //TODO Boolen으로 화면제어 추가하기!
+                    {/*TODO Boolen으로 화면제어 추가하기!*/}
                     {/*<div style={input.modtype ? { display: 'inline-block' } : { display: 'none' }}>*/}
                     <div>
                         <div>노래년도 설정</div>

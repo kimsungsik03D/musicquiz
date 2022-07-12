@@ -11,8 +11,6 @@ import Modal from 'react-modal'
 
 export default function MultiInGameInterface(props) {
     const location = useLocation().state
-    // console.log('location ',location);
-    // console.log('multingame props', props);
     const [isOpen, setIsOpen] = useState(false)
     const state = useLocation().state
     const [user, setUser] = useState([])
@@ -32,49 +30,7 @@ export default function MultiInGameInterface(props) {
 
         const a = JSON.parse(e.data)
         setGameData(a)
-        // console.log('a' ,a);
-        // answer
-        // anserCheck
-        // gaming
-        // score
-        // singerHint
-        // songHint
-        // songUrl
-        // time
-        // userId
-        // userNm
-        // setGameData({
-        //   ...gameData,
-        //   answer : a.answer,
-        //   anserCheck : a.anserCheck,
-        //   gaming : a.gaming,
-        //   score : a.score,
-        //   singerHint : a.singerHint,
-        //   songHint : a.songHint,
-        //   songUrl : a.songUrl,
-        //   time : a.time,
-        //   userId : a.userId,
-        //   userNm : a.userNm
-        // })
-        // console.log('@@@@@@@@', e)
-        console.log('!!!!!!!!', a)
-        // console.log('username', a.userNm.substr(0, 4))
-        // console.log('username',a.userNm);
-        console.log('inputAnswer', a.answer)
-        //   // setGameData({
-        //   //     gaming: true,
-        //   //     singerHint: '',
-        //   //     songHint: '',
-        //   //     songUrl: 'https://docs.google.com/uc?export=open&id=1xM0Lh3wy0akEcm4WaSztiVscw5_lwOlh',
-        //   // })
-        //   // songUrl: 'https://docs.google.com/uc?export=open&id=1fN2mEqy2HDeDnRcyRGpEC44W8gdNMl0O'})
-        //
         console.log('Ingame onmessage!!')
-        // setAnswerData((answerData) => [...answerData],{userId : a.userNm.substr(0,4),answer :a.answer})
-        // setAnswerData((answerData) => [...answerData],{userId : a.userNm.substr(0,4),answer :a.answer})
-      // console.log("usernam stata!!@#@1",a.userNm);
-      // console.log("usernam stata!!@#@2",typeof a.userNm);
-      // console.log("usernam stata!!@#@3",a.userNm==null);
       if(a.userNm!=undefined){
         setAnswerData([...answerData, { userId: a.userNm.toString().substr(0, 4), answer: a.answer }])
         console.log('answerData', answerData)
@@ -92,60 +48,6 @@ export default function MultiInGameInterface(props) {
       }
     }
     },[props.props.onmessage])
-    /*
-
-  useEffect(()=>{
-    props.props.onmessage = (e) => {
-      //TODO : useState 확ㅇ니해서 데이더 set하기
-
-      const a = JSON.parse(e.data)
-      setGameData( a)
-      // console.log('a' ,a);
-      // answer
-      // anserCheck
-      // gaming
-      // score
-      // singerHint
-      // songHint
-      // songUrl
-      // time
-      // userId
-      // userNm
-      // setGameData({
-      //   ...gameData,
-      //   answer : a.answer,
-      //   anserCheck : a.anserCheck,
-      //   gaming : a.gaming,
-      //   score : a.score,
-      //   singerHint : a.singerHint,
-      //   songHint : a.songHint,
-      //   songUrl : a.songUrl,
-      //   time : a.time,
-      //   userId : a.userId,
-      //   userNm : a.userNm
-      // })
-      // console.log('@@@@@@@@', e)
-      console.log('!!!!!!!!', a)
-      console.log('username',a.userNm.substr(0,4));
-      // console.log('username',a.userNm);
-      console.log('inputAnswer',a.answer);
-      //   // setGameData({
-      //   //     gaming: true,
-      //   //     singerHint: '',
-      //   //     songHint: '',
-      //   //     songUrl: 'https://docs.google.com/uc?export=open&id=1xM0Lh3wy0akEcm4WaSztiVscw5_lwOlh',
-      //   // })
-      //   // songUrl: 'https://docs.google.com/uc?export=open&id=1fN2mEqy2HDeDnRcyRGpEC44W8gdNMl0O'})
-      //
-      console.log('Ingame onmessage!!')
-      // setAnswerData((answerData) => [...answerData],{userId : a.userNm.substr(0,4),answer :a.answer})
-      // setAnswerData((answerData) => [...answerData],{userId : a.userNm.substr(0,4),answer :a.answer})
-      // setAnswerData([...answerData,{userId : a.userNm.substr(0,4),answer :a.answer}])
-      setAnswerData([...answerData,{userId : '12121',answer :'dsadgsadg'}])
-      console.log('answerData', answerData);
-      console.log('userid!@#!@#', {userId : a.userNm.substr(0,4),answer :a.answer});
-    }
-  },[])*/
 
     // props.props.onclose = (e) => {
     //   console.log('onclose', e)
@@ -210,14 +112,6 @@ export default function MultiInGameInterface(props) {
         window.location.href = '/'
     }
     const userList = <div style={{ margin:0, padding:'0 5px'}}><div style={{ border: '1px solid pink' }}>사용자A</div><div style={{ border: '1px solid pink',textAlign:'center' }}>1</div></div>
-    // const userList = user.map((data, index) =>
-    //     data ? (
-    //         <div key={index}>
-    //             <div>data.username</div>
-    //             <div>data.score</div>
-    //         </div>
-    //     ) : null,
-    // )
 
     /* 채팅 데이터 출력*/
     const answerList = answerData.map((data, index) =>
@@ -230,7 +124,7 @@ export default function MultiInGameInterface(props) {
             <div style={{ border: '1px solid black' }}>""</div>
         ),
     )
-    // const answerList = answerData.map((data, index) => {console.log('data',data);})
+
     /*정답 클릭시 호출함수*/
     function onClickAnswer(e) {
         //TODO 스크롤 제어 필요함.
@@ -238,18 +132,6 @@ export default function MultiInGameInterface(props) {
         //console.log('입력한 정답은 : ', answer, '입니다.')
         // TODO 서버에 데이터 전송하기.
 
-        /*  var msg = {
-        "userName" : "message",
-        "toYear" : 2000,
-        "fromYear" : 2020,
-        "questionCount" :2 ,
-        "modtype" :true,
-        "songHint" : true,
-        "singerHint" : true,
-        "rankMod" : true
-
-    }*/
-        // console.log("정답", answer);
         let msg = {
             roomStatus: 'gaming',
             answer: answer,
@@ -259,9 +141,7 @@ export default function MultiInGameInterface(props) {
         // setAnswerData((answerData) => [...answerData, answer])
         setAnswer('')
     }
-    // const EndGame= <div>runningTime : {gameData.runningTime}
-    //   <br/>
-    //   score : {gameData.score}<br/></div>
+
     return (
         <div className={'mainContainer'}>
             <div className={'SoloHeader'}>
