@@ -1,8 +1,8 @@
 import React, { useState,useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { type } from '@testing-library/user-event/dist/type';
-import testJson from 'test.json'
+// import { type } from '@testing-library/user-event/dist/type';
+// import testJson from 'test.json'
 import { Button, Modal } from 'antd';
 
 

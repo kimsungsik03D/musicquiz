@@ -14,15 +14,13 @@ const MultiGameCreate = (props) => {
     const [gameState,setGamestet] = useState(false)
     const [input, setInput] = useState({
         // userName: state.userName?state.userName:'' ,
-        userName: '홍길동',
+        roomStatus: 'start',
         toYear: null,
         fromYear: null,
         questionCount: null,
-        modtype: true,
         songHint: '',
         singerHint: '',
         // rankMod: '',
-        roomOpen: '',
         // gameType: '',
         roomId : roomId
     })
@@ -178,7 +176,7 @@ const MultiGameCreate = (props) => {
         if (location.usertype == 'host') {
           //  console.log('create Game start send usertype : Host');
             props.props.send(
-              JSON.stringify({
+              /*JSON.stringify({
                   roomStatus: 'start',
                   roomId:roomId,
                   toYear: 2000,
@@ -187,7 +185,8 @@ const MultiGameCreate = (props) => {
                   modtype: true,
                   songHint: false,
                   singerHint: true,
-              }),
+              }),*/
+              JSON.stringify(input)
             )
         } else {
           //  console.log('create Game start send usertype : guest');
@@ -258,7 +257,7 @@ const MultiGameCreate = (props) => {
             <div className={'container'}>
                 <div className={'setting1'}>
                     <div>
-                        <div>
+                       {/* <div>
                             방 공개설정 :{' '}
                             <input
                                 type={'radio'}
@@ -278,13 +277,13 @@ const MultiGameCreate = (props) => {
                                 disabled={gameset}
                             />{' '}
                             비공개
-                        </div>
+                        </div>*/}
                         <div>
                             게임 방식 설정 :{' '}
                             <input
                                 type={'radio'}
-                                name={'gameType'}
-                                id={'gameType'}
+                                name={'modtype'}
+                                id={'modtype'}
                                 value={true}
                                 onClick={onChange}
                                 disabled={gameset}
@@ -292,8 +291,8 @@ const MultiGameCreate = (props) => {
                             년도 지정{' '}
                             <input
                                 type={'radio'}
-                                name={'gameType'}
-                                id={'gameType'}
+                                name={'modtype'}
+                                id={'modtype'}
                                 value={false}
                                 onClick={onChange}
                                 disabled={gameset}
@@ -361,7 +360,9 @@ const MultiGameCreate = (props) => {
                 <div
                     className={'setting2'}
                     style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <div style={input.gameType ? { display: 'inline-block' } : { display: 'none' }}>
+                    //TODO Boolen으로 화면제어 추가하기!
+                    {/*<div style={input.modtype ? { display: 'inline-block' } : { display: 'none' }}>*/}
+                    <div>
                         <div>노래년도 설정</div>
                         <div>
                             <input
