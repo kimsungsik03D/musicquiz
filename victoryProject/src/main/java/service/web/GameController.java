@@ -1,4 +1,5 @@
 package service.web;
+/*로컬에서 테스트용*/
 
 import java.util.Timer;
 
@@ -33,12 +34,9 @@ public class GameController {
 	//@Scheduled(cron = "0/5 * * * * ?")
 	private String test(){
 		Timer timer = new Timer();
-		System.out.println("테스트");
 		return "redirect:/end";
 	}
 	
-	//블록 이동 이벤트
-	
-	//블록 전환 이벤트
+
 	
 }

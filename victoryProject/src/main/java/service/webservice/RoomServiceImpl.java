@@ -68,16 +68,22 @@ public class RoomServiceImpl implements RoomService {
 	}
 
 	//user 나갈때
-	public boolean userOut(Room room, String sessionId) {
+	public int userOut(Room room, String sessionId) {
 		
 		if(room.getUserList().contains(sessionId) ) {
 			room.getUserList().remove(sessionId);
 			room.getUserReady().remove(sessionId);
-			roomRepo.save(room);
-			return true;
+			roomRepo.save(room);			
+			
+			if(room.getRoomOwner().equals(sessionId)) {
+				ownerSet(room, room.getUserList().get(0));
+				return 0;	
+			}
+
+			return 1;
 		}	
 		else 
-			return false;
+			return -1;
 		
 	}
 	

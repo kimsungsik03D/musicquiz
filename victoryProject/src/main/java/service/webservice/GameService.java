@@ -1,4 +1,10 @@
+/*
+ * 솔로모드 인터페이스 
+ * */
+
 package service.webservice;
+
+
 
 import org.json.simple.JSONObject;
 import org.springframework.http.ResponseEntity;
