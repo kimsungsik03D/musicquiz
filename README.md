@@ -21,7 +21,9 @@
 
 방 접속
 
-![방 입장](https://user-images.githubusercontent.com/30370933/180347644-fc97e41f-038c-4c9b-a2c9-87e7388997f5.PNG)
+![게임 진행중1](https://user-images.githubusercontent.com/30370933/180348694-86e2ac58-84dd-4913-bc33-3a8c5c1b992d.PNG)
+
+
 게임 진행화면
 
 
