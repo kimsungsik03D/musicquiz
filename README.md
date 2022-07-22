@@ -12,17 +12,16 @@
 
 ## 구조도
 
-https://user-images.githubusercontent.com/30370933/180348197-e44dea79-edcd-4a80-b7cc-690b88dfba25.PNG
+![구조도](https://user-images.githubusercontent.com/30370933/180348197-e44dea79-edcd-4a80-b7cc-690b88dfba25.PNG)
 
 
 ### 동작화면 (현재 프론트쪽 일부 작업중)
 
-https://user-images.githubusercontent.com/30370933/180347644-fc97e41f-038c-4c9b-a2c9-87e7388997f5.PNG
+![방장기준](https://user-images.githubusercontent.com/30370933/180347659-50ec1fa7-b93d-4496-a885-3c1cb0fdf9d9.PNG)
 
 방 접속
 
-https://user-images.githubusercontent.com/30370933/180347659-50ec1fa7-b93d-4496-a885-3c1cb0fdf9d9.PNG
-
+![방 입장](https://user-images.githubusercontent.com/30370933/180347644-fc97e41f-038c-4c9b-a2c9-87e7388997f5.PNG)
 게임 진행화면
 
 
